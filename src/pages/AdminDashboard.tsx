@@ -246,10 +246,10 @@ export const AdminDashboard = () => {
       reservations &&
       userCount &&
       usageByPurpose ? (
-        <div className="grid grid-cols-[3fr_1fr] gap-4 w-full h-full">
+        <div className="grid grid-cols-1 xl:grid-cols-[3fr_1fr] gap-4 w-full h-full">
           {/* First Column - Reservations */}
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               <div className="w-full">
                 <ReservationCard
                   header="Pending Reservations"
@@ -291,8 +291,8 @@ export const AdminDashboard = () => {
                   View Reservations
                 </button>
               </div>
-              <div>
-                <table className="w-full text-left">
+              <div className="overflow-x-auto">
+                 <table className="w-full text-left min-w-[600px]">
                   <thead className="border-b border-gray-200 ">
                     <tr className={`grid ${gridColumns} items-center p-4 `}>
                       {columns.map((col, index) => (
@@ -342,7 +342,7 @@ export const AdminDashboard = () => {
             </div>
           </div>
           {/* 2nd Column - User Type & Room Utilization Purpose*/}
-          <div className="h-full flex flex-col gap-4">
+          <div className="flex flex-col gap-4 h-full">
             <div className="bg-white p-4 py-8 border-gray-200 border rounded-xl w-full h-max text-center">
               <h2 className="text-2xl font-bold text-[var(--dark-primary)] mb-2">
                 Total Users
