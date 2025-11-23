@@ -29,6 +29,7 @@ export const AdminDashboard = () => {
     Tooltip,
     Legend
   );
+
   const gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr]";
 
   const [records, setRecords] = useState<Reservation[]>();
@@ -38,6 +39,8 @@ export const AdminDashboard = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [userCount, setUserCount] = useState<UserCount[]>([]);
   const [usageByPurpose, setUsageByPurpose] = useState<UsageByPurpose[]>([]);
+  const [totalPending, setTotalPending] = useState<number>();
+  const [totalActive, setTotalActive] = useState<number>();
   const [chartUserCount, setChartUserCount] = useState<UserCount[]>([]);
   const [chartUsageByPurpose, setChartUsageByPurpose] = useState<
     UsageByPurpose[]
@@ -69,56 +72,45 @@ export const AdminDashboard = () => {
     if (monthReservation) setRecords(monthReservation.data);
   }, [monthReservation]);
 
-  // Rerender if any of the setter function updates
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
   useEffect(() => {
-    // Fetch the rooms from pending reservations
-    async function getPendingRoomUsage() {
-      const { data } = await supabase.rpc("admin_get_room_usage", {
-        p_status: "Pending",
-      });
+    async function fetchAllData() {
+      setIsLoadingData(true);
+      const [
+        { data: pendingData },
+        { data: activeData },
+        { data: totalData },
+        { data: userData },
+        { data: purposeData },
+        { data: totalPendingData },
+        { data: totalActiveData },
+      ] = await Promise.all([
+        supabase.rpc("admin_get_room_usage", { p_status: "Pending" }),
+        supabase.rpc("admin_get_room_usage", { p_status: "Approved" }),
+        supabase.rpc("admin_get_all_room_usage"),
+        supabase.rpc("admin_get_user_counts"),
+        supabase.rpc("admin_get_room_usage_per_purpose"),
+        supabase.rpc("admin_get_total_reservation_by_month", {
+          p_status: "Pending",
+        }),
+        supabase.rpc("admin_get_total_reservation_by_month", {
+          p_status: "Approved",
+        }),
+      ]);
 
-      if (data) setPendingRoomUsage(data);
+      // Update ALL state at once
+      setPendingRoomUsage(pendingData || []);
+      setActiveRoomUsage(activeData || []);
+      setTotalRoomUsage(totalData || []);
+      setUserCount(userData || []);
+      setUsageByPurpose(purposeData || []);
+      setTotalPending(totalPendingData || []);
+      setTotalActive(totalActiveData || []);
     }
 
-    // Fetch the rooms from approved reservations
-    async function getActiveRoomUsage() {
-      const { data } = await supabase.rpc("admin_get_room_usage", {
-        p_status: "Approved",
-      });
-
-      if (data) setActiveRoomUsage(data);
-    }
-
-    // Fetch the rooms from all reservations
-    async function getTotalRoomUsage() {
-      const { data } = await supabase.rpc("admin_get_all_room_usage");
-
-      if (data) setTotalRoomUsage(data);
-    }
-
-    // Fetch total user by type
-    async function getTotalUsers() {
-      const { data } = await supabase.rpc("admin_get_user_counts");
-
-      if (data) setUserCount(data);
-    }
-
-    // Fetch total user by type
-    async function getUsageByPurpose() {
-      const { data } = await supabase.rpc("admin_get_room_usage_per_purpose");
-
-      if (data) setUsageByPurpose(data);
-    }
-
-    const refreshAllData = () => {
-      getPendingRoomUsage();
-      getActiveRoomUsage();
-      getTotalRoomUsage();
-      getTotalUsers();
-      getUsageByPurpose();
-    };
-
-    refreshAllData();
+    fetchAllData();
+    setIsLoadingData(false);
   }, []);
 
   // Fetch all the data from the admin_reservation table
@@ -157,7 +149,8 @@ export const AdminDashboard = () => {
     if (
       !reservationIsLoading &&
       !adminReservationIsLoading &&
-      !monthReservationsIsLoading
+      !monthReservationsIsLoading &&
+      !isLoadingData
     ) {
       setChartUserCount(userCount);
       setChartUsageByPurpose(usageByPurpose);
@@ -168,6 +161,7 @@ export const AdminDashboard = () => {
     userCount,
     usageByPurpose,
     monthReservationsIsLoading,
+    isLoadingData,
   ]);
 
   useEffect(() => {
@@ -176,9 +170,10 @@ export const AdminDashboard = () => {
 
   // If the data are still loading, it will display the loading state
   if (
-    reservationIsLoading &&
-    adminReservationIsLoading &&
-    monthReservationsIsLoading
+    reservationIsLoading ||
+    adminReservationIsLoading ||
+    monthReservationsIsLoading ||
+    isLoadingData
   ) {
     return (
       <MantineProvider>
@@ -258,9 +253,7 @@ export const AdminDashboard = () => {
               <div className="w-full">
                 <ReservationCard
                   header="Pending Reservations"
-                  totalValue={
-                    records?.filter((r) => r.status === "Pending").length
-                  }
+                  totalValue={totalPending}
                   roomsUsage={pendingRoomUsage}
                   type="pending"
                 />
@@ -268,9 +261,7 @@ export const AdminDashboard = () => {
               <div className="w-full">
                 <ReservationCard
                   header="Active Reservations"
-                  totalValue={
-                    records?.filter((r) => r.status === "Approved").length
-                  }
+                  totalValue={totalActive}
                   roomsUsage={activeRoomUsage}
                   type="active"
                 />
