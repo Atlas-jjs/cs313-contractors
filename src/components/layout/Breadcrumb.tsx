@@ -5,7 +5,7 @@ export const Breadcrumb = () => {
   const { breadcrumbs } = useBreadcrumb();
   return (
     <>
-      <ul className="flex">
+      <ul className="flex capitalize">
         {breadcrumbs.map((breadcrumb, index) => {
           return (
             <li

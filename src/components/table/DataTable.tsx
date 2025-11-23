@@ -126,6 +126,8 @@ export function DataTable<T extends { id: string | number }>({
               </tbody>
             </table>
           </div>
+
+          {/*   */}
           {/* Mobile / Small Tablet Card View
           <div className="flex flex-col gap-4 xl:hidden">
             {data.map((item, index) => (

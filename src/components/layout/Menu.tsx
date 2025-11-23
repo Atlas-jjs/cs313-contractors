@@ -1,7 +1,6 @@
 import { useGetIdentity, useLogout } from "@refinedev/core";
 import { NavLink } from "react-router";
 import { useEffect, useState } from "react";
-import supabase from "../../config/supabaseClient";
 
 // React Icons
 import { RxExit } from "react-icons/rx";
@@ -20,7 +19,7 @@ export const Menu = () => {
   const { data, isLoading } = useGetIdentity();
   const { mutate: logout, isPending } = useLogout();
 
-  // Fetch user type
+  // Set user type
   useEffect(() => {
     if (isLoading) return;
 
@@ -29,20 +28,7 @@ export const Menu = () => {
       return;
     }
 
-    async function fetchUser() {
-      if (data) {
-        const userId = data.user?.id ?? "";
-        const { data: userData, error } = await supabase
-          .from("user")
-          .select("type")
-          .eq("id", userId)
-          .single();
-        if (error) console.error("An error occurred:", error.message);
-        setType(userData?.type);
-      }
-    }
-
-    fetchUser();
+    setType(data.type);
   }, [data, isLoading]);
 
   // Fetch menu items base from user type

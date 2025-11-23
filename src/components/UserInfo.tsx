@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useGetIdentity } from "@refinedev/core";
-import supabase from "../config/supabaseClient";
 
 import { IoPersonCircleOutline } from "react-icons/io5";
 
@@ -11,6 +10,7 @@ export const UserInfo = () => {
   const { data, isLoading } = useGetIdentity();
 
   useEffect(() => {
+    console.log(data);
     if (!isLoading && data) {
       setLoggedInUser(data?.user.user_metadata?.full_name ?? "Unnamed user...");
     }
@@ -22,21 +22,8 @@ export const UserInfo = () => {
       return;
     }
 
-    async function fetchUser() {
-      if (data) {
-        const userId = data.user?.id ?? "";
-        const { data: userData, error } = await supabase
-          .from("user")
-          .select("type, avatar_url")
-          .eq("id", userId)
-          .single();
-        if (error) console.error("An error occurred:", error.message);
-        setType(userData?.type);
-        setAvatar(userData?.avatar_url);
-      }
-    }
-
-    fetchUser();
+    setType(data.type);
+    setAvatar(data.avatar_url);
   }, [data, isLoading]);
   return (
     <>

@@ -51,13 +51,21 @@ export const authProvider: AuthProvider = {
     return { success: true, redirectTo: "/login" };
   },
   getIdentity: async () => {
-    const { data, error } = await supabaseClient.auth.getUser();
+    const { data: authData, error } = await supabaseClient.auth.getUser();
 
     if (error) console.error("Error getting user:", error.message);
 
-    if (data?.user) {
-      return data;
-    }
+    const { data: userData } = await supabaseClient
+      .from("user")
+      .select("type, avatar_url")
+      .eq("id", authData.user?.id)
+      .single();
+
+    return {
+      ...authData,
+      type: userData?.type,
+      avatar_url: userData?.avatar_url,
+    };
 
     return null;
   },

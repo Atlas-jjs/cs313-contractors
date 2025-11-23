@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 // Refine Imports
-import { Authenticated, ErrorComponent, Refine } from "@refinedev/core";
+import { Authenticated, Refine } from "@refinedev/core";
 import { dataProvider, liveProvider } from "@refinedev/supabase";
 import routerProvider, {
   // CatchAllNavigate,
@@ -43,6 +43,8 @@ import { HistoryList, HistoryShow } from "./pages/history";
 import { InstructorDashboard } from "./pages/InstructorDashboard";
 import { CalendarShow } from "./pages/calendar/show";
 import { CalendarList } from "./pages/calendar";
+import { RoleGuard } from "./utils/role-guard";
+import { ErrorComponent } from "./pages/ErrorComponent";
 // import { ErrorComponent } from "./pages/ErrorComponent";
 
 function App() {
@@ -76,33 +78,153 @@ function App() {
                   </Authenticated>
                 }
               >
+                {/* Starting Route */}
                 <Route index element={<RoleRedirect />} />
-                <Route path="/student" element={<StudentDashboard />} />
-                <Route path="/instructor" element={<InstructorDashboard />} />
-                <Route path="/manage" element={<AdminDashboard />} />
+
+                {/* Separate Dashboards */}
+                <Route
+                  path="/student"
+                  element={
+                    <RoleGuard allowed={["Student"]}>
+                      <StudentDashboard />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="/instructor"
+                  element={
+                    <RoleGuard allowed={["Instructor"]}>
+                      <InstructorDashboard />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="/manage"
+                  element={
+                    <RoleGuard allowed={["Admin"]}>
+                      <AdminDashboard />
+                    </RoleGuard>
+                  }
+                />
+
+                {/* Calendar */}
                 <Route path="/calendar">
-                  <Route index element={<CalendarList />}></Route>
-                  <Route element={<CalendarShow />}></Route>
+                  <Route
+                    index
+                    element={
+                      <RoleGuard allowed={["Student", "Instructor", "Admin"]}>
+                        <CalendarList />
+                      </RoleGuard>
+                    }
+                  ></Route>
+                  <Route
+                    element={
+                      <RoleGuard allowed={["Student", "Instructor", "Admin"]}>
+                        <CalendarShow />
+                      </RoleGuard>
+                    }
+                  ></Route>
                 </Route>
+                {/* History */}
                 <Route path="/history">
-                  <Route index element={<HistoryList />}></Route>
-                  <Route path="show/:id" element={<HistoryShow />} />
+                  <Route
+                    index
+                    element={
+                      <RoleGuard allowed={["Admin"]}>
+                        <HistoryList />
+                      </RoleGuard>
+                    }
+                  ></Route>
+                  <Route
+                    path="show/:id"
+                    element={
+                      <RoleGuard allowed={["Admin"]}>
+                        <HistoryShow />
+                      </RoleGuard>
+                    }
+                  />
                 </Route>
+                {/* User */}
                 <Route path="/user">
-                  <Route index element={<UserList />}></Route>
-                  <Route path="show/:id" element={<UserShow />} />
+                  <Route
+                    index
+                    element={
+                      <RoleGuard allowed={["Admin"]}>
+                        <UserList />
+                      </RoleGuard>
+                    }
+                  ></Route>
+                  <Route
+                    path="show/:id"
+                    element={
+                      <RoleGuard allowed={["Admin"]}>
+                        <UserShow />
+                      </RoleGuard>
+                    }
+                  />
                 </Route>
+                {/* Reservation */}
                 <Route path="/reservation">
-                  <Route index element={<ReservationList />}></Route>
+                  <Route
+                    index
+                    element={
+                      <RoleGuard allowed={["Admin", "Student", "Instructor"]}>
+                        <ReservationList />
+                      </RoleGuard>
+                    }
+                  ></Route>
                   <Route path="create" element={<ReservationCreate />} />
-                  <Route path="show/:id" element={<ReservationShow />} />
-                  <Route path="edit/:id" element={<ReservationEdit />} />
+                  <Route
+                    path="show/:id"
+                    element={
+                      <RoleGuard allowed={["Admin", "Student", "Instructor"]}>
+                        <ReservationShow />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="edit/:id"
+                    element={
+                      <RoleGuard allowed={["Student", "Instructor"]}>
+                        <ReservationEdit />
+                      </RoleGuard>
+                    }
+                  />
                 </Route>
+                {/* Room */}
                 <Route path="/room">
-                  <Route index element={<RoomList />}></Route>
-                  <Route path="create" element={<RoomCreate />} />
-                  <Route path="show/:id" element={<RoomShow />} />
-                  <Route path="edit/:id" element={<RoomEdit />} />
+                  <Route
+                    index
+                    element={
+                      <RoleGuard allowed={["Admin", "Student", "Instructor"]}>
+                        <RoomList />
+                      </RoleGuard>
+                    }
+                  ></Route>
+                  <Route
+                    path="create"
+                    element={
+                      <RoleGuard allowed={["Admin"]}>
+                        <RoomCreate />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="show/:id"
+                    element={
+                      <RoleGuard allowed={["Admin", "Student", "Instructor"]}>
+                        <RoomShow />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="edit/:id"
+                    element={
+                      <RoleGuard allowed={["Admin"]}>
+                        <RoomEdit />
+                      </RoleGuard>
+                    }
+                  />
                 </Route>
                 <Route path="*" element={<ErrorComponent />} />
               </Route>

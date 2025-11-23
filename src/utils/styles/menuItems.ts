@@ -63,7 +63,6 @@ export const getMenuItems = (type: string): MenuItem[] => {
       return [
         {
           label: "Dashboard",
-          // ! Fix proper routing
           to: "/student",
           icon: MdOutlineDashboard,
         },
