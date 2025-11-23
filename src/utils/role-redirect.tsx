@@ -50,11 +50,11 @@ const RoleRedirect = () => {
 
   // TEMPORARY
   if (type === "Student") {
-    return <Navigate to="/student-dashboard" replace />;
+    return <Navigate to="/student" replace />;
   } else if (type === "Admin") {
-    return <Navigate to="/admin-dashboard" replace />;
+    return <Navigate to="/manage" replace />;
   } else if (type === "Instructor") {
-    return <Navigate to="/instructor-dashboard" replace />;
+    return <Navigate to="/instructor" replace />;
   }
 
   return <Navigate to="/login" replace />;

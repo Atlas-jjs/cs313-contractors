@@ -13,6 +13,7 @@ import { Search } from "../../components/Search";
 import { FaXmark } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa";
 import { Filter } from "../../components/Filter";
+import supabase from "../../config/supabaseClient";
 // import supabase from "../../config/supabaseClient";
 
 export const ReservationList: React.FC = () => {
@@ -94,14 +95,21 @@ export const ReservationList: React.FC = () => {
     );
   }
 
-  const handleAccept = (id: string) => {
-    mutate({
-      resource: "reservation",
-      id: id,
-      values: {
-        status: "Approved",
-      },
+  const handleAccept = async (id: string) => {
+    const { data: result, error } = await supabase.rpc("approve_reservation", {
+      p_reservation_id: id,
     });
+
+    if (error) throw error;
+
+    alert(result);
+    // mutate({
+    //   resource: "reservation",
+    //   id: id,
+    //   values: {
+    //     status: "Approved",
+    //   },
+    // });
 
     refetch();
   };

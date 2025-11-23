@@ -21,8 +21,7 @@ export const getMenuItems = (type: string): MenuItem[] => {
       return [
         {
           label: "Dashboard",
-          // ! Fix proper routing
-          to: "/admin-dashboard",
+          to: "/manage",
           icon: MdOutlineDashboard,
         },
         {
@@ -56,7 +55,7 @@ export const getMenuItems = (type: string): MenuItem[] => {
 
     case "Instructor":
       return [
-        { label: "Dashboard", to: "/professor-dashboard" },
+        { label: "Dashboard", to: "/instructor" },
         { label: "My Schedule", to: "/calendar" },
       ];
 
@@ -65,7 +64,7 @@ export const getMenuItems = (type: string): MenuItem[] => {
         {
           label: "Dashboard",
           // ! Fix proper routing
-          to: "/student-dashboard",
+          to: "/student",
           icon: MdOutlineDashboard,
         },
         { label: "Calendar", to: "/calendar", icon: FaRegCalendar },

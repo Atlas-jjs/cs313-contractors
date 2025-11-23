@@ -57,7 +57,7 @@ const Details = ({
   const filteredEndTimes =
     formData.startTime && allTimes.includes(formData.startTime)
       ? allTimes.slice(
-          allTimes.indexOf(formData.startTime) + 1,
+          allTimes.indexOf(formData.startTime) + 2,
           allTimes.indexOf(formData.startTime) + 5
         )
       : allTimes;

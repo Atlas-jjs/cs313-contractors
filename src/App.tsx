@@ -24,7 +24,6 @@ import { authProvider } from "./providers/auth-provider";
 // Components
 import { Login } from "./pages/Login";
 import { StudentDashboard } from "./pages/StudentDashboard";
-import StudentCalendar from "./pages/calendar/StudentCalendar";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import RoleRedirect from "./utils/role-redirect";
 import { Layout } from "./components/layout/Layout";
@@ -42,6 +41,8 @@ import { RoomCreate, RoomEdit, RoomList, RoomShow } from "./pages/rooms";
 import { ReservationEdit } from "./pages/reservations/edit";
 import { HistoryList, HistoryShow } from "./pages/history";
 import { InstructorDashboard } from "./pages/InstructorDashboard";
+import { CalendarShow } from "./pages/calendar/show";
+import { CalendarList } from "./pages/calendar";
 // import { ErrorComponent } from "./pages/ErrorComponent";
 
 function App() {
@@ -76,16 +77,13 @@ function App() {
                 }
               >
                 <Route index element={<RoleRedirect />} />
-                <Route
-                  path="/student-dashboard"
-                  element={<StudentDashboard />}
-                />
-                <Route
-                  path="/instructor-dashboard"
-                  element={<InstructorDashboard />}
-                />
-                <Route path="/calendar" element={<StudentCalendar />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/student" element={<StudentDashboard />} />
+                <Route path="/instructor" element={<InstructorDashboard />} />
+                <Route path="/manage" element={<AdminDashboard />} />
+                <Route path="/calendar">
+                  <Route index element={<CalendarList />}></Route>
+                  <Route element={<CalendarShow />}></Route>
+                </Route>
                 <Route path="/history">
                   <Route index element={<HistoryList />}></Route>
                   <Route path="show/:id" element={<HistoryShow />} />

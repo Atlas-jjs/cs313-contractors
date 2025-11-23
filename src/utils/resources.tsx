@@ -2,9 +2,9 @@ import type { ResourceProps } from "@refinedev/core";
 
 export const resources: ResourceProps[] = [
   { name: "calendar", list: "/calendar" },
-  { name: "Dashboard", list: "/admin-dashboard" },
-  { name: "Dashboard", list: "/student-dashboard" },
-  { name: "Dashboard", list: "/instructor-dashboard" },
+  { name: "Dashboard", list: "/manage" },
+  { name: "Dashboard", list: "/student" },
+  { name: "Dashboard", list: "/instructor" },
   {
     name: "reservation",
     list: "/reservation",
