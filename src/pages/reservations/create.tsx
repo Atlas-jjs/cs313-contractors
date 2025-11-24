@@ -30,7 +30,7 @@ import { TbClipboardText, TbUsersGroup, TbCheckupList } from "react-icons/tb";
 // Refine Import
 import { useGetIdentity, useGo, useList } from "@refinedev/core";
 import supabase from "../../config/supabaseClient";
-import { notifyError, notifySuccess } from "../../utils/notifcations";
+import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 
 export const ReservationCreate = () => {
   const { data: userData } = useGetIdentity();

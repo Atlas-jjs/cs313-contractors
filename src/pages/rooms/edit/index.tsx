@@ -8,8 +8,8 @@ import {
 } from "@mantine/core";
 import { useGo, useShow, useUpdate } from "@refinedev/core";
 import { useEffect, useState } from "react";
-import type { Room } from "../../../utils/types";
-import { notifyError, notifySuccess } from "../../../utils/notifcations";
+import type { Room } from "../../pageUtils/types";
+import { notifyError, notifySuccess } from "../../pageUtils/notifcations";
 
 export const RoomEdit = () => {
   // Store the fetched room data
@@ -60,24 +60,44 @@ export const RoomEdit = () => {
     e.preventDefault();
 
     try {
-      await mutate({
-        resource: "room",
-        id: room?.id,
-        values: {
-          name: name,
-          room: specificRoom,
-          status: status,
-          description: description,
-          capacity: capacity,
+      await mutate(
+        {
+          resource: "room",
+          id: room?.id,
+          values: {
+            name: name,
+            room: specificRoom,
+            status: status,
+            description: description,
+            capacity: capacity,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            notifySuccess({
+              title: "Updated Room",
+              message: "The room has been updated successfully.",
+            });
 
-      notifySuccess({
-        title: "Updated Room",
-        message: "The room has been updated successfully.",
-      });
+            setTimeout(() => go({ to: "/room" }), 1000);
+          },
+          onError: (error) => {
+            if (error?.message.includes("unique constraint")) {
+              notifyError({
+                title: "Duplicate Room",
+                message: "A room with this name already exists.",
+              });
+            } else {
+              notifyError({
+                title: "Failed to update room",
+                message: "Something went wrong.",
+              });
+            }
 
-      setTimeout(() => go({ to: "/room" }), 1000);
+            console.error(error);
+          },
+        }
+      );
     } catch (error) {
       notifyError({
         title: "Failed to update room",
@@ -106,9 +126,6 @@ export const RoomEdit = () => {
               value={specificRoom ?? "Undefined"}
               label="Room"
               onChange={(e) => setSpecificRoom(e.currentTarget.value)}
-              // onChange={(e) =>
-              //   setRoom((prev) => ({ ...prev, room: e.currentTarget.value }))
-              // }
             />
           </div>
           <div>
@@ -117,22 +134,31 @@ export const RoomEdit = () => {
               label="Description"
               styles={{ input: { height: 150 } }}
               onChange={(e) => setDescription(e.currentTarget.value)}
-              // onChange={(e) =>
-              //   setRoom((prev) => ({
-              //     ...prev,
-              //     description: e.currentTarget.value,
-              //   }))
-              // }
             />
           </div>
           <div>
             <NumberInput
               value={capacity ?? 0}
               label="Capacity"
-              onChange={(value) => setCapacity(Number(value))}
-              // onChange={(value) =>
-              //   setRoom((prev) => ({ ...prev, capacity: Number(value) }))
-              // }
+              min={0}
+              max={50} // ! Change
+              onChange={(value) => {
+                if (
+                  value !== null &&
+                  Number(value) <= 50 &&
+                  Number(value) >= 0
+                ) {
+                  setCapacity(Number(value));
+                } else if (
+                  (value !== null && Number(value) > 50) ||
+                  (value !== null && Number(value) < 0)
+                ) {
+                  notifyError({
+                    title: "Invalid Capacity",
+                    message: "Capacity cannot be less than 0 and more than 50.",
+                  });
+                }
+              }}
             />
             <div>
               <Select

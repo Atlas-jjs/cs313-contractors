@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Badge,
   Card,
   Grid,
@@ -14,7 +15,7 @@ import {
   ThemeIcon,
   Title,
 } from "@mantine/core";
-import { useShow } from "@refinedev/core";
+import { useGo, useShow, useUpdate } from "@refinedev/core";
 import { useParams } from "react-router-dom";
 import {
   IoCalendarOutline,
@@ -23,8 +24,14 @@ import {
 } from "react-icons/io5";
 import type { Reservation } from "../pageUtils/types";
 
-export const HistoryShow = () => {
+import { notifyError, notifySuccess } from "../pageUtils/notifcations";
+import { LuPencilLine } from "react-icons/lu";
+import { MdDelete } from "react-icons/md";
+
+export const StudentDashboardShow = () => {
+  const go = useGo();
   const { id } = useParams();
+  const { mutateAsync } = useUpdate();
   const {
     query: { data, isLoading },
   } = useShow<Reservation>({
@@ -65,6 +72,31 @@ export const HistoryShow = () => {
     });
   };
 
+  const handleDeletion = async (id: string) => {
+    try {
+      await mutateAsync({
+        resource: "reservation",
+        id: id,
+        values: {
+          status: "Closed",
+        },
+      });
+
+      notifySuccess({
+        title: "Reservation Deleted",
+        message: "The reservation has been updated successfully.",
+      });
+
+      go({ to: "/" });
+    } catch (error) {
+      notifyError({
+        title: "Failed to delete reservation",
+        message: "Something went wrong.",
+      });
+      console.error(error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Approved":
@@ -100,6 +132,27 @@ export const HistoryShow = () => {
               Code: {record?.reservation_code}
             </Text>
           </div>
+          {record?.status === "Pending" && (
+            <div className="flex gap-2">
+              <ActionIcon
+                title="Edit Reservation"
+                onClick={() =>
+                  go({
+                    to: `/student/edit/${record?.id}`,
+                  })
+                }
+              >
+                <LuPencilLine />
+              </ActionIcon>
+              <ActionIcon
+                title="Delete Room"
+                color="red"
+                onClick={() => handleDeletion(record?.id ?? "")}
+              >
+                <MdDelete />
+              </ActionIcon>
+            </div>
+          )}
         </div>
 
         <Grid gutter="md">

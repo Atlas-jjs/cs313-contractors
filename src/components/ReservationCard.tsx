@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { RoomUsage } from "../utils/types";
+import type { RoomUsage } from "../pages/pageUtils/types";
 
 interface ReservationCardProps {
   header: string;

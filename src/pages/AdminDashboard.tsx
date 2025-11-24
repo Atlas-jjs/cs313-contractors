@@ -4,7 +4,7 @@ import type {
   RoomUsage,
   UsageByPurpose,
   UserCount,
-} from "../utils/types";
+} from "./pageUtils/types";
 import supabase from "../config/supabaseClient";
 import { useEffect, useState } from "react";
 import { ReservationCard } from "../components/ReservationCard";
@@ -60,12 +60,30 @@ export const AdminDashboard = () => {
     resource: "reservation",
   });
 
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
   // Fetch total records
   const {
     result: monthReservation,
     tableQuery: { isLoading: monthReservationsIsLoading },
   } = useTable<Reservation>({
-    resource: "admin_reservation_this_month",
+    resource: "all_reservation",
+    filters: {
+      permanent: [
+        {
+          field: "created_at",
+          operator: "gte",
+          value: firstDay.toISOString(),
+        },
+        {
+          field: "created_at",
+          operator: "lte",
+          value: lastDay.toISOString(),
+        },
+      ],
+    },
   });
 
   useEffect(() => {
@@ -113,12 +131,12 @@ export const AdminDashboard = () => {
     setIsLoadingData(false);
   }, []);
 
-  // Fetch all the data from the admin_reservation table
+  // Fetch all the data from the all_reservation table
   const {
     result,
     tableQuery: { isLoading: adminReservationIsLoading },
   } = useTable<Reservation>({
-    resource: "admin_reservation",
+    resource: "all_reservation",
     pagination: { currentPage: 1, pageSize: 6 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {

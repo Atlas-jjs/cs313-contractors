@@ -7,7 +7,7 @@ import {
 } from "@mantine/core";
 import { useShow } from "@refinedev/core";
 import { useEffect, useState } from "react";
-import type { Room } from "../../utils/types";
+import type { Room } from "../pageUtils/types";
 import supabase from "../../config/supabaseClient";
 
 export const RoomShow = () => {

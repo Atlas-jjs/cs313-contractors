@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Loader, MantineProvider } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "../../components/table/DataTable";
-import type { Reservation } from "../../utils/types";
+import type { Reservation } from "../pageUtils/types";
 import { Search } from "../../components/Search";
 import { tw } from "../../utils/styles/styles";
 import { Filter } from "../../components/Filter";
@@ -34,7 +34,7 @@ export const HistoryList: React.FC = () => {
     sorters,
     setSorters,
   } = useTable<Reservation>({
-    resource: "admin_reservation",
+    resource: "all_reservation",
     pagination: { currentPage: 1, pageSize: 10 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {

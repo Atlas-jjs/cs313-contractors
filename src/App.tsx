@@ -23,7 +23,6 @@ import { authProvider } from "./providers/auth-provider";
 
 // Components
 import { Login } from "./pages/Login";
-import { StudentDashboard } from "./pages/StudentDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import RoleRedirect from "./utils/role-redirect";
 import { Layout } from "./components/layout/Layout";
@@ -39,7 +38,6 @@ import {
 } from "./pages/reservations";
 import { resources } from "./utils/resources";
 import { RoomCreate, RoomEdit, RoomList, RoomShow } from "./pages/rooms";
-import { ReservationEdit } from "./pages/reservations/edit";
 import { HistoryList, HistoryShow } from "./pages/history";
 import { InstructorDashboard } from "./pages/InstructorDashboard";
 import { CalendarShow } from "./pages/calendar/show";
@@ -47,6 +45,11 @@ import { CalendarList } from "./pages/calendar";
 import { RoleGuard } from "./utils/role-guard";
 import { ErrorComponent } from "./pages/ErrorComponent";
 import { MantineProvider } from "@mantine/core";
+import {
+  StudentDashboard,
+  StudentDashboardEdit,
+  StudentDashboardShow,
+} from "./pages/student";
 
 function App() {
   return (
@@ -91,12 +94,30 @@ function App() {
                   {/* Separate Dashboards */}
                   <Route
                     path="/student"
+                    index
                     element={
                       <RoleGuard allowed={["Student"]}>
                         <StudentDashboard />
                       </RoleGuard>
                     }
-                  />
+                  ></Route>
+                  <Route
+                    path="/student/show/:id"
+                    element={
+                      <RoleGuard allowed={["Student"]}>
+                        <StudentDashboardShow />
+                      </RoleGuard>
+                    }
+                  ></Route>
+                  <Route
+                    path="/student/edit/:id"
+                    element={
+                      <RoleGuard allowed={["Student"]}>
+                        <StudentDashboardEdit />
+                      </RoleGuard>
+                    }
+                  ></Route>
+
                   <Route
                     path="/instructor"
                     element={
@@ -189,14 +210,14 @@ function App() {
                         </RoleGuard>
                       }
                     />
-                    <Route
+                    {/* <Route
                       path="edit/:id"
                       element={
                         <RoleGuard allowed={["Student", "Instructor"]}>
                           <ReservationEdit />
                         </RoleGuard>
                       }
-                    />
+                    /> */}
                   </Route>
                   {/* Room */}
                   <Route path="/room">

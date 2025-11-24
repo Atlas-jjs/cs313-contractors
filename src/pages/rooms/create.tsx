@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreate, useUpdate } from "@refinedev/core";
+import { useCreate, useGo, useUpdate } from "@refinedev/core";
 import {
   MantineProvider,
   NumberInput,
@@ -19,6 +19,7 @@ import {
   MdOutlineFileUpload,
 } from "react-icons/md";
 import { FaXmark } from "react-icons/fa6";
+import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 
 export const RoomCreate = () => {
   const [files, setFiles] = useState<FileWithPath[]>([]);
@@ -28,6 +29,8 @@ export const RoomCreate = () => {
   const [description, setDescription] = useState("");
   const [capacity, setCapacity] = useState(0);
   const [status, setStatus] = useState("Unavailable");
+
+  const go = useGo();
 
   const {
     mutateAsync,
@@ -42,19 +45,46 @@ export const RoomCreate = () => {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!name || !room || !status || capacity === undefined) {
+      notifyError({
+        title: "Missing Fields",
+        message: "Please fill out all required fields before submitting.",
+      });
+      return;
+    }
+
     try {
       // 1️⃣ Create the room first
-      const newRoom = await mutateAsync({
-        resource: "room",
-        values: {
-          name,
-          room,
-          status,
-          description,
-          capacity,
-          images: [], // temporarily empty
+      const newRoom = await mutateAsync(
+        {
+          resource: "room",
+          values: {
+            name,
+            room,
+            status,
+            description,
+            capacity,
+            images: [], // temporarily empty
+          },
         },
-      });
+        {
+          onError: (error) => {
+            if (error?.message.includes("unique constraint")) {
+              notifyError({
+                title: "Duplicate Room",
+                message: "A room with this name already exists.",
+              });
+            } else {
+              notifyError({
+                title: "Failed to create room",
+                message: "Something went wrong.",
+              });
+            }
+
+            console.error(error);
+          },
+        }
+      );
 
       if (!newRoom.data.id) throw new Error("Failed to get new room ID");
       const roomId = newRoom.data.id;
@@ -78,17 +108,25 @@ export const RoomCreate = () => {
         })
       );
 
-      // 3️⃣ Update the room with uploaded image URLs
-      await updateAsync({
-        resource: "room",
-        id: roomId,
-        values: { images: uploadedUrls },
-      });
+      await updateAsync(
+        {
+          resource: "room",
+          id: roomId,
+          values: { images: uploadedUrls },
+        },
+        {
+          onSuccess: () => {
+            notifySuccess({
+              title: "Created Room",
+              message: "The room has been created successfully.",
+            });
 
-      alert("Room Successfully Created!");
-      window.location.reload();
+            setTimeout(() => go({ to: "/room" }), 1000);
+          },
+        }
+      );
     } catch (error) {
-      console.error("Failed to create room:", error);
+      console.error(error);
     }
   };
 
@@ -178,6 +216,8 @@ export const RoomCreate = () => {
           <div className="flex gap-2">{previewThumbnails}</div>
           <div>
             <TextInput
+              placeholder="Fusion"
+              required
               label="Facility"
               value={name}
               onChange={(e) => setName(e.currentTarget.value)}
@@ -185,6 +225,8 @@ export const RoomCreate = () => {
           </div>
           <div>
             <TextInput
+              placeholder="D723"
+              required
               label="Room"
               value={room}
               onChange={(e) => setRoom(e.currentTarget.value)}
@@ -192,6 +234,7 @@ export const RoomCreate = () => {
           </div>
           <div>
             <Textarea
+              placeholder="A short description here..."
               label="Description"
               styles={{ input: { height: 150 } }}
               value={description}
@@ -200,12 +243,32 @@ export const RoomCreate = () => {
           </div>
           <div>
             <NumberInput
+              required
+              value={capacity ?? 0}
               label="Capacity"
-              value={capacity}
-              onChange={(e) => setCapacity(Number(e))}
+              min={0}
+              max={50}
+              onChange={(value) => {
+                if (
+                  value !== null &&
+                  Number(value) <= 50 &&
+                  Number(value) >= 0
+                ) {
+                  setCapacity(Number(value));
+                } else if (
+                  (value !== null && Number(value) > 50) ||
+                  (value !== null && Number(value) < 0)
+                ) {
+                  notifyError({
+                    title: "Invalid Capacity",
+                    message: "Capacity cannot be less than 0 and more than 50.",
+                  });
+                }
+              }}
             />
             <div>
               <Select
+                required
                 data={statusOptions}
                 label="Status"
                 value={status}

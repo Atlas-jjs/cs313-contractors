@@ -1,5 +1,5 @@
 import { useList } from "@refinedev/core";
-import type { Room } from "../../../utils/types";
+import type { Room } from "../../pageUtils/types";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import supabase from "../../../config/supabaseClient";

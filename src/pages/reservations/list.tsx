@@ -8,13 +8,13 @@ import { useEffect, useState } from "react";
 import { Loader, MantineProvider, ActionIcon } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "../../components/table/DataTable";
-import type { Reservation } from "../../utils/types";
+import type { Reservation } from "../pageUtils/types";
 import { Search } from "../../components/Search";
 import { FaXmark } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa";
 import { Filter } from "../../components/Filter";
 import supabase from "../../config/supabaseClient";
-import { notifyError, notifySuccess } from "../../utils/notifcations";
+import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 // import supabase from "../../config/supabaseClient";
 
 export const ReservationList: React.FC = () => {
@@ -37,7 +37,7 @@ export const ReservationList: React.FC = () => {
     sorters,
     setSorters,
   } = useTable<Reservation>({
-    resource: "admin_reservation",
+    resource: "all_reservation",
     pagination: { currentPage: 1, pageSize: 10 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {

@@ -1,11 +1,12 @@
 import { useGetIdentity, useTable } from "@refinedev/core";
 import { useEffect, useState } from "react";
-import { DataTable } from "./../components/table/DataTable";
-import type { Reservation } from "../utils/types";
 import { Badge, Loader, MantineProvider } from "@mantine/core";
-import { Search } from "../components/Search";
-import { Filter } from "../components/Filter";
+
 import { useDebouncedValue } from "@mantine/hooks";
+import { Search } from "../../components/Search";
+import { Filter } from "../../components/Filter";
+import { DataTable } from "../../components/table/DataTable";
+import type { Reservation } from "../pageUtils/types";
 
 export const StudentDashboard = () => {
   const { data: userData } = useGetIdentity();
@@ -23,7 +24,7 @@ export const StudentDashboard = () => {
     sorters,
     setSorters,
   } = useTable<Reservation>({
-    resource: "admin_reservation",
+    resource: "all_reservation",
     pagination: { currentPage: 1, pageSize: 9 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {

@@ -14,12 +14,12 @@ import { useEffect, useState } from "react";
 import { ActionIcon, Loader, MantineProvider } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "../../components/table/DataTable";
-import type { User } from "../../utils/types/index";
+import type { User } from "../pageUtils/types/index";
 import { Search } from "../../components/Search";
 import { Filter } from "../../components/Filter";
 import { MdDelete } from "react-icons/md";
 import { FaUserCheck, FaUserSlash } from "react-icons/fa";
-import { notifyError, notifySuccess } from "../../utils/notifcations";
+import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 
 export const UserList: React.FC = () => {
   const gridColumns = "grid-cols-[2fr_1fr_1fr_1.5fr_1fr_1fr]";

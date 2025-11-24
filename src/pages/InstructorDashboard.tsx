@@ -1,7 +1,7 @@
 import { useGetIdentity, useTable } from "@refinedev/core";
 import { useEffect, useState } from "react";
 import { DataTable } from "./../components/table/DataTable";
-import type { Reservation } from "../utils/types";
+import type { Reservation } from "./pageUtils/types";
 import { Loader, MantineProvider } from "@mantine/core";
 import { Search } from "../components/Search";
 import { Filter } from "../components/Filter";
@@ -24,7 +24,7 @@ export const InstructorDashboard = () => {
     sorters,
     setSorters,
   } = useTable<Reservation>({
-    resource: "admin_reservation",
+    resource: "all_reservation",
     pagination: { currentPage: 1, pageSize: 9 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {

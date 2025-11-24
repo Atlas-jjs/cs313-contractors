@@ -1,6 +1,6 @@
 import { useDelete, useGetIdentity, useGo, useTable } from "@refinedev/core";
 import React, { useEffect, useState } from "react";
-import type { Room } from "../../utils/types/index";
+import type { Room } from "../pageUtils/types/index";
 import { ActionIcon, Loader, MantineProvider } from "@mantine/core";
 import { NoResults } from "../../components/NoResults";
 import { DataTable } from "../../components/table/DataTable";

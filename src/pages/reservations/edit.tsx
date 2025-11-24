@@ -5,7 +5,7 @@ export const ReservationEdit = () => {
   // const { mutate, mutation } = useUpdate();
 
   // mutate({
-  //   resource: "admin_reservation",
+  //   resource: "all_reservation",
   // });
   return <div>ReservationEdit</div>;
 };

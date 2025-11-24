@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { User } from "../../utils/types";
+import type { User } from "../pageUtils/types";
 import { useShow, useUpdate } from "@refinedev/core";
 import {
   ActionIcon,
@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { FaUserCheck, FaUserSlash } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { notifyError, notifySuccess } from "../../utils/notifcations";
+import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 
 export const UserShow = () => {
   const [user, setUser] = useState<User>();

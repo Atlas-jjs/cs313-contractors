@@ -22,10 +22,10 @@ import {
   IoPersonSharp,
   IoTimeOutline,
 } from "react-icons/io5";
-import type { Reservation } from "../../utils/types";
+import type { Reservation } from "../pageUtils/types";
 import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
-import { notifyError, notifySuccess } from "../../utils/notifcations";
+import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 import supabase from "../../config/supabaseClient";
 
 export const ReservationShow = () => {
@@ -34,7 +34,7 @@ export const ReservationShow = () => {
   const {
     query: { data, isLoading },
   } = useShow<Reservation>({
-    resource: "admin_reservation",
+    resource: "all_reservation",
     id,
   });
 
