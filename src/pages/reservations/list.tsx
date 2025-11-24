@@ -38,7 +38,7 @@ export const ReservationList: React.FC = () => {
     setSorters,
   } = useTable<Reservation>({
     resource: "admin_reservation",
-    pagination: { currentPage: 1, pageSize: 9 },
+    pagination: { currentPage: 1, pageSize: 10 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {
       permanent: [
@@ -96,21 +96,31 @@ export const ReservationList: React.FC = () => {
   }
 
   const handleAccept = async (id: string) => {
-    const { data: result, error } = await supabase.rpc("approve_reservation", {
-      p_reservation_id: id,
-    });
+    try {
+      const { data, error } = await supabase.rpc("approve_reservation", {
+        p_reservation_id: id,
+      });
 
-    if (error) throw error;
+      const result = JSON.parse(data);
 
-    alert(result);
-    // mutate({
-    //   resource: "reservation",
-    //   id: id,
-    //   values: {
-    //     status: "Approved",
-    //   },
-    // });
-
+      if (result.status !== "success" || error) {
+        notifyError({
+          title: "Failed to Approve Reservation",
+          message: result.message,
+        });
+      } else {
+        notifySuccess({
+          title: "Reservation Approved",
+          message: result.message,
+        });
+      }
+    } catch (error) {
+      notifyError({
+        title: "System Error",
+        message: "Something went wrong...",
+      });
+      console.error(error);
+    }
     refetch();
   };
 

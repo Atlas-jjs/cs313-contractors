@@ -35,7 +35,7 @@ export const HistoryList: React.FC = () => {
     setSorters,
   } = useTable<Reservation>({
     resource: "admin_reservation",
-    pagination: { currentPage: 1, pageSize: 9 },
+    pagination: { currentPage: 1, pageSize: 10 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {
       permanent: [

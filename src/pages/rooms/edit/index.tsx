@@ -6,9 +6,10 @@ import {
   Textarea,
   TextInput,
 } from "@mantine/core";
-import { useShow, useUpdate } from "@refinedev/core";
+import { useGo, useShow, useUpdate } from "@refinedev/core";
 import { useEffect, useState } from "react";
 import type { Room } from "../../../utils/types";
+import { notifyError, notifySuccess } from "../../../utils/notifcations";
 
 export const RoomEdit = () => {
   // Store the fetched room data
@@ -19,6 +20,8 @@ export const RoomEdit = () => {
   const [description, setDescription] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [capacity, setCapacity] = useState<number>();
+
+  const go = useGo();
 
   // Fetch the data from the database
   const {
@@ -53,25 +56,36 @@ export const RoomEdit = () => {
     );
   }
 
-  const handleUpdate = async () => {
-    await mutate({
-      resource: "room",
-      id: room?.id,
-      values: {
-        name: name,
-        room: specificRoom,
-        status: status,
-        description: description,
-        capacity: capacity,
-        // room: room.room,
-        // status: room.status,
-        // description: room.description,
-        // capacity: room.capacity,
-      },
-    });
-  };
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  console.log(room);
+    try {
+      await mutate({
+        resource: "room",
+        id: room?.id,
+        values: {
+          name: name,
+          room: specificRoom,
+          status: status,
+          description: description,
+          capacity: capacity,
+        },
+      });
+
+      notifySuccess({
+        title: "Updated Room",
+        message: "The room has been updated successfully.",
+      });
+
+      setTimeout(() => go({ to: "/room" }), 1000);
+    } catch (error) {
+      notifyError({
+        title: "Failed to update room",
+        message: "Something went wrong.",
+      });
+      console.error(error);
+    }
+  };
 
   return (
     <MantineProvider>

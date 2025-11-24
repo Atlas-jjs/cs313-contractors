@@ -25,10 +25,12 @@ import {
 import type { Reservation } from "../../utils/types";
 import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
+import { notifyError, notifySuccess } from "../../utils/notifcations";
+import supabase from "../../config/supabaseClient";
 
 export const ReservationShow = () => {
   const { id } = useParams();
-  const { mutate } = useUpdate();
+  const { mutateAsync } = useUpdate();
   const {
     query: { data, isLoading },
   } = useShow<Reservation>({
@@ -69,24 +71,55 @@ export const ReservationShow = () => {
     });
   };
 
-  const handleAccept = (id: string) => {
-    mutate({
-      resource: "reservation",
-      id: id,
-      values: {
-        status: "Approved",
-      },
-    });
+  const handleAccept = async (id: string) => {
+    try {
+      const { data, error } = await supabase.rpc("approve_reservation", {
+        p_reservation_id: id,
+      });
+
+      const result = JSON.parse(data);
+
+      if (result.status !== "success" || error) {
+        notifyError({
+          title: "Failed to Approve Reservation",
+          message: result.message,
+        });
+      } else {
+        notifySuccess({
+          title: "Reservation Approved",
+          message: result.message,
+        });
+      }
+    } catch (error) {
+      notifyError({
+        title: "System Error",
+        message: "Something went wrong...",
+      });
+      console.error(error);
+    }
   };
 
-  const handleDenied = (id: string) => {
-    mutate({
-      resource: "reservation",
-      id: id,
-      values: {
-        status: "Denied",
-      },
-    });
+  const handleDenied = async (id: string) => {
+    try {
+      await mutateAsync({
+        resource: "reservation",
+        id: id,
+        values: {
+          status: "Denied",
+        },
+      });
+
+      notifySuccess({
+        title: "Reservation Denied",
+        message: "The reservation status has been updated successfully.",
+      });
+    } catch (error) {
+      notifyError({
+        title: "Failed to update reservation",
+        message: "Something went wrong.",
+      });
+      console.error(error);
+    }
   };
 
   const getStatusColor = (status: string) => {

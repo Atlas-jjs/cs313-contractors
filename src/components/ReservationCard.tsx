@@ -4,7 +4,7 @@ import type { RoomUsage } from "../utils/types";
 interface ReservationCardProps {
   header: string;
   totalValue: number | undefined;
-  roomsUsage?: RoomUsage[] | undefined;
+  roomsUsage: RoomUsage[];
   type: string;
 }
 
@@ -44,6 +44,12 @@ export const ReservationCard = ({
   const currentMonth = month[date.getMonth()];
   const currentYear = new Date().getFullYear();
 
+  let gridColumns = "";
+  for (let i = 0; i < roomsUsage?.length; i++) {
+    gridColumns += "1fr";
+
+    if (i + 1 < roomsUsage.length) gridColumns += "_";
+  }
   return (
     <>
       <div className="bg-white rounded-xl p-4 border-gray-200 border w-full flex flex-col justify-center items-center h-full">
@@ -65,7 +71,7 @@ export const ReservationCard = ({
         <div className={`font-black text-6xl mb-4 ${valueColor}`}>
           {totalValue}
         </div>
-        <div className="flex text-sm gap-4">
+        <div className={`grid grid-cols-[${gridColumns}] text-sm gap-4`}>
           {roomsUsage?.map((r) => (
             <div
               key={r.room_id}
