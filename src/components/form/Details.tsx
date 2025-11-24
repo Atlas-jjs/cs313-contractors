@@ -29,7 +29,16 @@ const Details = ({
   const { data: userData } = useGetIdentity();
 
   // Fetch Room List
-  const { result } = useList({ resource: "room" });
+  const { result } = useList({
+    resource: "room",
+    filters: [
+      {
+        field: "status",
+        operator: "eq",
+        value: "Available",
+      },
+    ],
+  });
 
   // Form
   const [formData, setFormData] = useState<FormData>(
@@ -83,6 +92,23 @@ const Details = ({
     }
   }, [formData, onDetailsChange]);
 
+  // Purpose Choices
+  // const purposeOptions = [
+  //   { value: "it_project", label: "IT Project-Related" },
+  //   { value: "research", label: "Research-Related" },
+  //   { value: "academic", label: "Academic Requirement" },
+  //   { value: "thesis", label: "Thesis / Capstone" },
+  //   { value: "event", label: "Event / Activity" },
+  //   { value: "training", label: "Training / Workshop" },
+  //   { value: "maintenance", label: "Maintenance Work" },
+  //   { value: "admin_task", label: "Administrative Task" },
+  //   { value: "meeting", label: "Meeting / Consultation" },
+  //   { value: "testing", label: "System Testing" },
+  //   { value: "dept_request", label: "Department Request" },
+  //   { value: "facility", label: "Facility Use" },
+  //   { value: "other", label: "Other" },
+  // ];
+
   // Errors
   const errors = {
     room:
@@ -130,7 +156,22 @@ const Details = ({
             <Select
               label="Purpose"
               placeholder="Select Purpose"
-              data={["IT Project-Related", "Research-Related"]}
+              // data={purposeOptions}
+              data={[
+                "IT Project-Related",
+                "Research-Related",
+                "Academic Requirement",
+                "Thesis / Capstone",
+                "Event / Activity",
+                "Training / Workshop",
+                "Maintenance Work",
+                "Administrative Task",
+                "Meeting / Consultation",
+                "System Testing",
+                "Department Request",
+                "Facility Use",
+                "Other",
+              ]}
               value={formData.purpose}
               onChange={(val) =>
                 setFormData({ ...formData, purpose: val ?? "" })

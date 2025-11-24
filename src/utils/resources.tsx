@@ -29,6 +29,6 @@ export const resources: ResourceProps[] = [
     show: "/user/show/:id",
     edit: "/user/edit/:id",
   },
-  { name: "announcement", list: "/announcement" },
-  { name: "inbox", list: "/inbox" },
+  // { name: "announcement", list: "/announcement" },
+  // { name: "inbox", list: "/inbox" },
 ];

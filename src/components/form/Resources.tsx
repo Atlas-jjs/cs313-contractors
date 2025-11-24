@@ -64,7 +64,7 @@ const Resources = ({ onDetailsChange, initialData }: ResourcesProps) => {
         <div className="flex items-center  gap-2">
           <h2 className="leading-5">Participants</h2>
           <button
-            className="text-[var(--primary)] cursor-pointer flex items-center gap-2 rounded-full hover:text-[var(--primary-hover)] duration-200"
+            className="text-(--primary) cursor-pointer flex items-center gap-2 rounded-full hover:text-(--primary-hover) duration-200"
             onClick={addFields}
             type="button"
           >

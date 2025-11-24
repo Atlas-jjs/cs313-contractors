@@ -62,7 +62,7 @@ export const RoomList: React.FC = () => {
         {userData.type === "Admin" ? (
           <div className="flex flex-col gap-4 w-full h-full">
             <button
-              className="bg-[var(--primary)] p-2 text-white rounded cursor-pointer hover:bg-[var(--primary-hover)] transition duration-200"
+              className="bg-(--primary) p-2 text-white rounded cursor-pointer hover:bg-(--primary-hover) transition duration-200"
               onClick={() =>
                 go({
                   to: "create",

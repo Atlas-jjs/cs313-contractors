@@ -27,13 +27,13 @@ export const UserInfo = () => {
   }, [data, isLoading]);
   return (
     <>
-      <div className="bg-[var(--accent)] text-[var(--primary-white)] p-2 md:flex items-center gap-4 rounded drop-shadow-xl hidden">
+      <div className="bg-(--accent) text-(--primary-white) p-2 md:flex items-center gap-4 rounded drop-shadow-xl hidden">
         <div>
           {avatar ? (
             <img
               src={avatar}
               alt="Profile"
-              className="w-[2rem] h-auto rounded-full border border-black"
+              className="w-8 h-auto rounded-full border border-black"
             />
           ) : (
             <IoPersonCircleOutline size={"2.5rem"} />

@@ -182,7 +182,7 @@ export function DataTable<T extends { id: string | number }>({
                     {currentPage - 1}
                   </span>
                 )}
-                <span className="leading-none w-8 h-8 bg-[var(--primary)] text-[var(--primary-white)] rounded-full flex items-center justify-center">
+                <span className="leading-none w-8 h-8 bg-(--primary) text-(--primary-white) rounded-full flex items-center justify-center">
                   {currentPage}
                 </span>
                 {currentPage + 1 <= pageCount && (

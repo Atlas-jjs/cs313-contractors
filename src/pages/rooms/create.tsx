@@ -215,7 +215,7 @@ export const RoomCreate = () => {
           </div>
           <button
             type="submit"
-            className="p-3 bg-[var(--primary)] cursor-pointer text-white rounded"
+            className="p-3 bg-(--primary) cursor-pointer text-white rounded"
             disabled={isCreating}
           >
             Submit

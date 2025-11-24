@@ -8,6 +8,32 @@ interface ReservationCardProps {
   type: string;
 }
 
+// Can accommodate 10 rooms
+const roomColors: Record<number, string> = {
+  1: "text-[#2E8B57]",
+  2: "text-[#FF6347]",
+  3: "text-[#8A38F5]",
+  4: "text-[#272EF5]",
+  5: "text-[#FFA500]",
+  6: "text-[#20B2AA]",
+  7: "text-[#FF69B4]",
+  8: "text-[#9400D3]",
+  9: "text-[#00CED1]",
+  10: "text-[#FF4500]",
+};
+
+const bgRoomColors: Record<number, string> = {
+  1: "bg-[#2E8B5754]",
+  2: "bg-[#FF634754]",
+  3: "bg-[#8A38F554]",
+  4: "bg-[#272EF554]",
+  5: "bg-[#FFA50054]",
+  6: "bg-[#20B2AA54]",
+  7: "bg-[#FF69B454]",
+  8: "bg-[#9400D354]",
+  9: "bg-[#00CED154]",
+  10: "bg-[#FF450054]",
+};
 export const ReservationCard = ({
   header,
   totalValue,
@@ -44,59 +70,52 @@ export const ReservationCard = ({
   const currentMonth = month[date.getMonth()];
   const currentYear = new Date().getFullYear();
 
-  let gridColumns = "";
-  for (let i = 0; i < roomsUsage?.length; i++) {
-    gridColumns += "1fr";
-
-    if (i + 1 < roomsUsage.length) gridColumns += "_";
-  }
   return (
     <>
       <div className="bg-white rounded-xl p-4 border-gray-200 border w-full flex flex-col justify-center items-center h-full">
         <div className="flex flex-col items-center mb-4">
-          <div className="font-bold text-2xl text-[var(--dark-primary)]">
+          <div className="font-bold text-2xl text-(--dark-primary)">
             {header}
           </div>
           <div className="flex gap-1 italic">
-            {type !== "total" ? (
-              <div>
-                <span>{currentMonth}</span>
-              </div>
-            ) : (
-              ""
-            )}
+            {type !== "total" && <span>{currentMonth}</span>}
             <span>{currentYear}</span>
           </div>
         </div>
         <div className={`font-black text-6xl mb-4 ${valueColor}`}>
-          {totalValue}
+          {totalValue && totalValue > 0 ? totalValue : 0}
         </div>
-        <div className={`grid grid-cols-[${gridColumns}] text-sm gap-4`}>
-          {roomsUsage?.map((r) => (
-            <div
-              key={r.room_id}
-              className={`flex gap-2 ${
-                r.room_id === 3
-                  ? "text-[#2E8B57]"
-                  : r.room_id === 1
-                  ? "text-[#FF6347]"
-                  : "text-[#8A38F5]"
-              }`}
-            >
-              <span
-                className={`font-bold w-5 h-5 rounded-full flex items-center justify-center ${
-                  r.room_id === 3
-                    ? "bg-[#2E8B5754] "
-                    : r.room_id === 1
-                    ? "bg-[#FF634754]"
-                    : "bg-[#8A38F554]"
-                }`}
-              >
-                {r.total_usage}
-              </span>
-              <span>{r.room_name}</span>
-            </div>
-          ))}
+        <div
+          className={`grid w-full text-sm gap-4`}
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
+          }}
+        >
+          <div
+            className="grid w-full text-sm gap-4"
+            style={{
+              gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
+            }}
+          >
+            {roomsUsage?.map((r, index) => {
+              const textColor = roomColors[index + 1];
+              const bgColor = bgRoomColors[index + 1];
+
+              return (
+                <div
+                  key={r.room_id}
+                  className={`flex gap-2 ${textColor} items-center`}
+                >
+                  <span
+                    className={`font-bold w-5 h-5 shrink-0 rounded-full flex items-center justify-center ${bgColor}`}
+                  >
+                    {r.total_usage}
+                  </span>
+                  <span>{r.room_name}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>

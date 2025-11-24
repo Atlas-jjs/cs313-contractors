@@ -194,7 +194,7 @@ export const ReservationCreate = () => {
                 <button
                   onClick={prevStep}
                   type="button"
-                  className={`py-2 px-12 text-[var(--primary)] border border-[var(--primary)] rounded-sm cursor-pointer duration-200 hover:bg-[var(--primary)] hover:text-white ${
+                  className={`py-2 px-12 text-(--primary) border border-(--primary) rounded-sm cursor-pointer duration-200 hover:bg-(--primary) hover:text-white ${
                     active === 0 ? "invisible" : "visible"
                   }`}
                 >
@@ -205,7 +205,7 @@ export const ReservationCreate = () => {
                   <button
                     type="submit"
                     disabled={!agreed}
-                    className="py-2 px-12 bg-[var(--primary)] text-[var(--primary-white)] rounded-sm cursor-pointer hover:bg-[var(--primary-hover)] duration-200 disabled:opacity-50"
+                    className="py-2 px-12 bg-(--primary) text-(--primary-white) rounded-sm cursor-pointer hover:bg-(--primary-hover) duration-200 disabled:opacity-50"
                   >
                     Submit
                   </button>
@@ -213,7 +213,7 @@ export const ReservationCreate = () => {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="py-2 px-12 bg-[var(--primary)] text-[var(--primary-white)] rounded-sm cursor-pointer hover:bg-[var(--primary-hover)] duration-200"
+                    className="py-2 px-12 bg-(--primary) text-(--primary-white) rounded-sm cursor-pointer hover:bg-(--primary-hover) duration-200"
                   >
                     Next
                   </button>

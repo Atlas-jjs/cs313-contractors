@@ -15,7 +15,7 @@ export const ErrorComponent = () => {
           The requested page does not exist
         </p>
         <button
-          className="bg-[var(--primary)] 2xl:py-4 p-2 px-8 rounded-xl hover:bg-[var(--primary-hover)] duration-200 transition all cursor-pointer text-white font-semibold"
+          className="bg-(--primary) 2xl:py-4 p-2 px-8 rounded-xl hover:bg-(--primary-hover) duration-200 transition all cursor-pointer text-white font-semibold"
           onClick={() =>
             go({
               to: "/",

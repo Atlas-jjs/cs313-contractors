@@ -10,12 +10,12 @@ export const Breadcrumb = () => {
           return (
             <li
               key={`breadcrumb-${breadcrumb.label}`}
-              className="text-[var(--primary)] text-xl font-bold flex flex-row"
+              className="text-(--primary) text-xl font-bold flex flex-row"
             >
               {breadcrumb.href ? (
                 <Link
                   to={breadcrumb.href}
-                  className="hover:text-[var(--primary-hover)] transition-all duration-300"
+                  className="hover:text-(--primary-hover) transition-all duration-300"
                 >
                   {breadcrumb.label}
                 </Link>

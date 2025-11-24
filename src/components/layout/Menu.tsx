@@ -1,6 +1,6 @@
 import { useGetIdentity, useLogout } from "@refinedev/core";
 import { NavLink } from "react-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 // React Icons
 import { RxExit } from "react-icons/rx";
@@ -10,10 +10,11 @@ import { BsLayoutSidebar, BsLayoutSidebarReverse } from "react-icons/bs";
 import { tw } from "../../utils/styles/styles";
 import { getMenuItems } from "../../utils/styles/menuItems";
 import sluLogo from "../../assets/images/slu-logo.png";
+import { MenuContext } from "./MenuContext";
 
 export const Menu = () => {
   const [type, setType] = useState("");
-  const [isOpen, setIsOpen] = useState(true);
+  const { sidebarState: isOpen, setSidebarState } = useContext(MenuContext);
 
   // Refine dev
   const { data, isLoading } = useGetIdentity();
@@ -45,8 +46,8 @@ export const Menu = () => {
         <div className="flex flex-col gap-4 justify-between">
           {/* Desktop Toggle */}
           <div
-            className="hidden sm:flex justify-end text-[var(--primary)] cursor-pointer"
-            onClick={() => setIsOpen(!isOpen)}
+            className="hidden sm:flex justify-end text-(--primary) cursor-pointer"
+            onClick={() => setSidebarState(!isOpen)}
           >
             {isOpen ? <BsLayoutSidebarReverse /> : <BsLayoutSidebar />}
           </div>
@@ -60,7 +61,7 @@ export const Menu = () => {
             <img
               src={sluLogo}
               alt="Saint Louis University Logo"
-              className="w-12 flex-shrink-0"
+              className="w-12 shrink-0"
             />
             <h2
               className={`transition-all duration-150 ${
@@ -71,7 +72,7 @@ export const Menu = () => {
             </h2>
           </div>
 
-          <hr className="text-[var(--ui-border)]" />
+          <hr className="text-(--ui-border)" />
 
           {/* Menu Items */}
           <ul className="flex flex-col gap-4">
@@ -85,7 +86,7 @@ export const Menu = () => {
                     ${isActive ? tw.isActiveTab : tw.isNotActiveTab}`
                   }
                 >
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {item.icon && <item.icon size={"1.25rem"} />}
                   </div>
                   <span
@@ -105,11 +106,11 @@ export const Menu = () => {
         <button
           disabled={isPending}
           onClick={() => logout()}
-          className={`cursor-pointer flex items-center px-3.5 bg-[var(--dark-primary)] py-2 rounded text-white hover:bg-[#333333] transition-all duration-200 ${
+          className={`cursor-pointer flex items-center px-3.5 bg-(--dark-primary) py-2 rounded text-white hover:bg-[#333333] transition-all duration-200 ${
             isOpen ? "gap-2" : "gap-0"
           }`}
         >
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <RxExit size={"1.25rem"} />
           </div>
           <span
@@ -125,12 +126,12 @@ export const Menu = () => {
       {/* Attached Mobile Toggle */}
       <button
         className={`
-          fixed top-4 z-50 bg-[var(--primary)] p-2 rounded-r-xl
+          fixed top-4 z-50 bg-(--primary) p-2 rounded-r-xl
           transition-all duration-300 ease-in-out
           sm:hidden
           ${isOpen ? "left-54" : "left-0"}
         `}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setSidebarState(!isOpen)}
       >
         {isOpen ? (
           <BsLayoutSidebarReverse size={20} color="var(--primary-white)" />
@@ -143,7 +144,7 @@ export const Menu = () => {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 sm:hidden"
-          onClick={() => setIsOpen(false)}
+          onClick={() => setSidebarState(false)}
         ></div>
       )}
     </>

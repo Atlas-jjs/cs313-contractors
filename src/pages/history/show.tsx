@@ -85,7 +85,7 @@ export const HistoryShow = () => {
         <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <div>
             <Group>
-              <Title order={2} className="text-[var(--primary)]">
+              <Title order={2} className="text-(--primary)">
                 Reservation Details
               </Title>
               <Badge

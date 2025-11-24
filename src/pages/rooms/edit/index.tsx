@@ -146,7 +146,7 @@ export const RoomEdit = () => {
           <button
             type="submit"
             disabled={isUpdating || isFetching}
-            className="p-3 bg-[var(--primary)] cursor-pointer text-white rounded"
+            className="p-3 bg-(--primary) cursor-pointer text-white rounded"
           >
             Submit
           </button>

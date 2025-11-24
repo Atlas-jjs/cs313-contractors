@@ -277,11 +277,11 @@ export const AdminDashboard = () => {
             </div>
             <div className="border-gray-200 border flex flex-col bg-white rounded-xl h-full">
               <div className="flex justify-between items-center p-4">
-                <span className="text-2xl text-[var(--primary)] font-bold">
+                <span className="text-2xl text-(--primary) font-bold">
                   Reservation
                 </span>
                 <button
-                  className="text-white text-medium bg-[var(--primary)] cursor-pointer p-2 px-4 rounded hover:bg-[var(--primary-hover)] transition-colors duration-200"
+                  className="text-white text-medium bg-(--primary) cursor-pointer p-2 px-4 rounded hover:bg-(--primary-hover) transition-colors duration-200"
                   onClick={() =>
                     go({
                       to: `/reservation`,
@@ -292,7 +292,7 @@ export const AdminDashboard = () => {
                 </button>
               </div>
               <div className="overflow-x-auto">
-                 <table className="w-full text-left min-w-[600px]">
+                <table className="w-full text-left min-w-[600px]">
                   <thead className="border-b border-gray-200 ">
                     <tr className={`grid ${gridColumns} items-center p-4 `}>
                       {columns.map((col, index) => (
@@ -344,7 +344,7 @@ export const AdminDashboard = () => {
           {/* 2nd Column - User Type & Room Utilization Purpose*/}
           <div className="flex flex-col gap-4 h-full">
             <div className="bg-white p-4 py-8 border-gray-200 border rounded-xl w-full h-max text-center">
-              <h2 className="text-2xl font-bold text-[var(--dark-primary)] mb-2">
+              <h2 className="text-2xl font-bold text-(--dark-primary) mb-2">
                 Total Users
               </h2>
               <Pie
@@ -362,7 +362,7 @@ export const AdminDashboard = () => {
             </div>
             <div className="bg-white p-4 border-gray-200 border rounded-xl w-full text-center h-full grid place-items-center">
               <div>
-                <h2 className="text-2xl font-bold text-[var(--dark-primary)] mb-2">
+                <h2 className="text-2xl font-bold text-(--dark-primary) mb-2">
                   Room Utilization Purpose
                 </h2>
                 <Bar

@@ -174,7 +174,7 @@ export const CalendarList = () => {
           {/* Right Controls */}
           <div className="flex items-center gap-3 mr-3 relative">
             <Link to="/reservation/create">
-              <IoAddCircleSharp className="text-4xl cursor-pointer text-[var(--primary)] hover:text-[var(--primary-hover)] transition" />
+              <IoAddCircleSharp className="text-4xl cursor-pointer text-(--primary) hover:text-(--primary-hover) transition" />
             </Link>
 
             {/* Room Dropdown */}
@@ -208,7 +208,7 @@ export const CalendarList = () => {
           {/* Header Row */}
           <div className="flex">
             {/* Corner Cell */}
-            <div className="border-r border-t border-b text-sm w-26 flex-shrink-0 border-gray-400">
+            <div className="border-r border-t border-b text-sm w-26 shrink-0 border-gray-400">
               <div className="border-b border-gray-400"></div>
             </div>
 
@@ -308,10 +308,10 @@ export const CalendarList = () => {
                           return (
                             <div
                               key={idx}
-                              className={`absolute left-1 right-1 p-2 rounded transition-all shadow-md duration-400 
+                              className={`absolute left-1 right-1 p-2 rounded transition-all shadow-md duration-400 text-white
                           ${
                             event.reserverId === currentUserId
-                              ? "bg-[var(--primary)]"
+                              ? "bg-(--primary)"
                               : event.reserverType === "Admin"
                               ? "bg-[#CC5500]"
                               : event.reserverType === "Instructor"
@@ -319,12 +319,11 @@ export const CalendarList = () => {
                               : "bg-[#6A0DAD]"
                           }`}
                               style={{
-                                color: "black",
                                 top: `${topPx}px`,
                                 height: `${heightPx}px`,
                               }}
                             >
-                              <div className="font-semibold text-sm truncate overflow-hidden whitespace-nowrap">
+                              <div className="font-semibold text-sm truncate overflow-hidden whitespace-nowrap uppercase">
                                 {event.remarks}
                               </div>
                               <div className="text-xs truncate overflow-hidden whitespace-nowrap">
@@ -342,7 +341,7 @@ export const CalendarList = () => {
       </div>
       <div className="flex gap-4">
         <div className="flex gap-2 items-center">
-          <div className={`${legendColor} bg-[var(--primary)]`}></div>
+          <div className={`${legendColor} bg-(--primary)`}></div>
           <span className="font-medium">Own Reservations</span>
         </div>
         <div className="flex gap-2 items-center">
