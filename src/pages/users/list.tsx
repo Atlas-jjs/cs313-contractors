@@ -19,6 +19,7 @@ import { Search } from "../../components/Search";
 import { Filter } from "../../components/Filter";
 import { MdDelete } from "react-icons/md";
 import { FaUserCheck, FaUserSlash } from "react-icons/fa";
+import { notifyError, notifySuccess } from "../../utils/notifcations";
 
 export const UserList: React.FC = () => {
   const gridColumns = "grid-cols-[2fr_1fr_1fr_1.5fr_1fr_1fr]";
@@ -26,7 +27,7 @@ export const UserList: React.FC = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [debounced] = useDebouncedValue(searchValue, 50);
   const [users, setUsers] = useState<User[]>([]);
-  const { mutate } = useUpdate<User>();
+  const { mutateAsync } = useUpdate<User>();
 
   const {
     result,
@@ -171,7 +172,7 @@ export const UserList: React.FC = () => {
     },
   ];
 
-  const handleUserSuspension = (id: string, status: boolean) => {
+  const handleUserSuspension = async (id: string, status: boolean) => {
     let userSuspension;
 
     if (status === true) {
@@ -180,13 +181,26 @@ export const UserList: React.FC = () => {
       userSuspension = true;
     }
 
-    mutate({
-      resource: "user",
-      id: id,
-      values: {
-        is_suspended: userSuspension,
-      },
-    });
+    try {
+      await mutateAsync({
+        resource: "user",
+        id,
+        values: {
+          is_suspended: userSuspension,
+        },
+      });
+
+      notifySuccess({
+        title: userSuspension ? "User Suspended" : "Access Restored",
+        message: "The user status has been updated successfully.",
+      });
+    } catch (error) {
+      notifyError({
+        title: "Failed to update user",
+        message: "Something went wrong.",
+      });
+      console.error(error);
+    }
   };
 
   // ! Finalize

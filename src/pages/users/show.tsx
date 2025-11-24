@@ -15,10 +15,11 @@ import {
 } from "@mantine/core";
 import { FaUserCheck, FaUserSlash } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { notifyError, notifySuccess } from "../../utils/notifcations";
 
 export const UserShow = () => {
   const [user, setUser] = useState<User>();
-  const { mutate } = useUpdate<User>();
+  const { mutateAsync } = useUpdate<User>();
 
   const {
     query: { data, isLoading, error },
@@ -40,7 +41,7 @@ export const UserShow = () => {
     );
   }
 
-  const handleUserSuspension = (id: string, status: boolean) => {
+  const handleUserSuspension = async (id: string, status: boolean) => {
     let userSuspension;
 
     if (status === true) {
@@ -49,13 +50,26 @@ export const UserShow = () => {
       userSuspension = true;
     }
 
-    mutate({
-      resource: "user",
-      id: id,
-      values: {
-        is_suspended: userSuspension,
-      },
-    });
+    try {
+      await mutateAsync({
+        resource: "user",
+        id,
+        values: {
+          is_suspended: userSuspension,
+        },
+      });
+
+      notifySuccess({
+        title: userSuspension ? "User Suspended" : "Access Restored",
+        message: "The user status has been updated successfully.",
+      });
+    } catch (error) {
+      notifyError({
+        title: "Failed to update user",
+        message: "Something went wrong.",
+      });
+      console.error(error);
+    }
   };
 
   // ! Finalize

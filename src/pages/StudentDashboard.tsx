@@ -1,32 +1,69 @@
-import { useGetIdentity } from "@refinedev/core";
-import supabase from "../config/supabaseClient";
+import { useGetIdentity, useTable } from "@refinedev/core";
 import { useEffect, useState } from "react";
 import { DataTable } from "./../components/table/DataTable";
 import type { Reservation } from "../utils/types";
+import { Badge, Loader, MantineProvider } from "@mantine/core";
+import { Search } from "../components/Search";
+import { Filter } from "../components/Filter";
+import { useDebouncedValue } from "@mantine/hooks";
 
 export const StudentDashboard = () => {
-  const { isLoading } = useGetIdentity();
+  const { data: userData } = useGetIdentity();
+  const [searchCode, setSearchCode] = useState("");
+  const [debouncedCode] = useDebouncedValue(searchCode, 150);
   const [reservations, setReservations] = useState<Reservation[]>([]);
 
+  const {
+    result,
+    tableQuery: { isLoading, refetch },
+    currentPage,
+    setCurrentPage,
+    pageCount,
+    setFilters,
+    sorters,
+    setSorters,
+  } = useTable<Reservation>({
+    resource: "admin_reservation",
+    pagination: { currentPage: 1, pageSize: 9 },
+    sorters: { initial: [{ field: "id", order: "asc" }] },
+    filters: {
+      permanent: [
+        {
+          field: "user_id",
+          operator: "eq",
+          value: userData.user.id,
+        },
+      ],
+      initial: [
+        {
+          field: "reservation_code",
+          operator: "contains",
+          value: "",
+        },
+      ],
+    },
+    queryOptions: {
+      enabled: true,
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 1000 * 60,
+    },
+  });
+
   useEffect(() => {
-    const fetchReservations = async () => {
-      if (!isLoading) {
-        try {
-          await getReservations();
-        } catch (err) {
-          console.error("Failed to fetch reservations:", err);
-        }
-      }
-    };
+    if (result) setReservations(result.data);
+  }, [result]);
 
-    fetchReservations();
-  }, [isLoading]);
-
-  async function getReservations() {
-    const { data, error } = await supabase.rpc("get_reservation");
-    if (error) console.error(error);
-    setReservations(data);
-  }
+  useEffect(() => {
+    setFilters([
+      {
+        field: "reservation_code",
+        operator: "contains",
+        value: debouncedCode,
+      },
+    ]);
+    refetch();
+  }, [debouncedCode]);
 
   // Format data (e.g. 15:00:00+00) to human readable (3:00 PM)
   function formatTime(time: string): string {
@@ -40,9 +77,47 @@ export const StudentDashboard = () => {
     });
   }
 
+  const getSorter = (field: string) => {
+    const sorter = sorters?.find((s) => s.field === field);
+
+    if (sorter) return sorter.order;
+  };
+
+  const onSort = (field: string) => {
+    const sorter = getSorter(field);
+    setSorters(
+      sorter === "desc"
+        ? []
+        : [
+            {
+              field,
+              order: sorter === "asc" ? "desc" : "asc",
+            },
+          ]
+    );
+  };
+
+  const getStatusColor = (status: string) =>
+    status === "Pending" ? "yellow" : status === "Approved" ? "green" : "red";
+
   const columns = [
-    { header: "Purpose", accessor: "purpose" as keyof Reservation },
-    { header: "Status", accessor: "status" as keyof Reservation },
+    {
+      header: "Code",
+      accessor: "reservation_code" as keyof Reservation,
+      action: (
+        <Search
+          placeholder="Search reservation"
+          data={reservations.map((r) => r.reservation_code)}
+          onChange={(value) => setSearchCode(value)}
+          value={searchCode}
+        />
+      ),
+    },
+    {
+      header: "Purpose",
+      accessor: "purpose" as keyof Reservation,
+      action: <Filter onClick={() => onSort("purpose")} />,
+    },
     {
       header: "Date(s)",
       accessor: (item: Reservation) =>
@@ -70,21 +145,51 @@ export const StudentDashboard = () => {
           : "-",
     },
     { header: "Advisor", accessor: "advisor" as keyof Reservation },
+    {
+      header: "Status",
+      accessor: (reservation: Reservation) => (
+        <Badge
+          size="lg"
+          variant="light"
+          color={getStatusColor(
+            reservation.status === "Pending"
+              ? "Pending"
+              : reservation.status === "Approved"
+              ? "Approved"
+              : "Denied"
+          )}
+        >
+          {reservation.status}
+        </Badge>
+      ),
+      action: <Filter onClick={() => onSort("status")} />,
+    },
   ];
+
+  if (isLoading && reservations.length === 0) {
+    return (
+      <MantineProvider>
+        <div className="flex justify-center items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <Loader />
+        </div>
+      </MantineProvider>
+    );
+  }
 
   return (
     <div>
-      <h1>Dashboard</h1>
-
-      <div className="rounded-lg p-6 bg-white flex flex-col gap-4 w-full h-full">
-        <DataTable
-          data={reservations}
-          isLoading={isLoading}
-          gridColumns="grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr]"
-          emptyMessage="You currently do not have any reservations"
-          columns={columns}
-        />
-      </div>
+      <DataTable
+        data={reservations}
+        isLoading={isLoading}
+        gridColumns="grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr]"
+        emptyMessage="You currently do not have any reservations"
+        columns={columns}
+        currentPage={currentPage}
+        pageCount={pageCount}
+        onPrevious={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+        onNext={() => setCurrentPage(Math.min(currentPage + 1, pageCount))}
+        onPage={(page) => setCurrentPage(page)}
+      />
     </div>
   );
 };

@@ -14,6 +14,7 @@ import { FaXmark } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa";
 import { Filter } from "../../components/Filter";
 import supabase from "../../config/supabaseClient";
+import { notifyError, notifySuccess } from "../../utils/notifcations";
 // import supabase from "../../config/supabaseClient";
 
 export const ReservationList: React.FC = () => {
@@ -24,6 +25,7 @@ export const ReservationList: React.FC = () => {
   const [debouncedCode] = useDebouncedValue(searchCode, 150);
   const [debouncedUser] = useDebouncedValue(searchUser, 150);
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const { mutateAsync } = useUpdate();
 
   const {
     result,
@@ -61,8 +63,6 @@ export const ReservationList: React.FC = () => {
       staleTime: 1000 * 60,
     },
   });
-
-  const { mutate } = useUpdate();
 
   useEffect(() => {
     if (result) setReservations(result.data);
@@ -114,14 +114,27 @@ export const ReservationList: React.FC = () => {
     refetch();
   };
 
-  const handleDenied = (id: string) => {
-    mutate({
-      resource: "reservation",
-      id: id,
-      values: {
-        status: "Denied",
-      },
-    });
+  const handleDenied = async (id: string) => {
+    try {
+      await mutateAsync({
+        resource: "reservation",
+        id: id,
+        values: {
+          status: "Denied",
+        },
+      });
+
+      notifySuccess({
+        title: "Reservation Denied",
+        message: "The reservation status has been updated successfully.",
+      });
+    } catch (error) {
+      notifyError({
+        title: "Failed to update reservation",
+        message: "Something went wrong.",
+      });
+      console.error(error);
+    }
 
     refetch();
   };

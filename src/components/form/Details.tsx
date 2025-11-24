@@ -3,7 +3,7 @@ import { DatePickerInput, getTimeRange, TimePicker } from "@mantine/dates";
 import { MantineProvider, MultiSelect, Select, TextInput } from "@mantine/core";
 import { TbCalendar } from "react-icons/tb";
 import dayjs from "dayjs";
-import { useList } from "@refinedev/core";
+import { useGetIdentity, useList } from "@refinedev/core";
 
 interface FormData {
   room?: string[];
@@ -11,7 +11,7 @@ interface FormData {
   date?: Date[];
   startTime?: string;
   endTime?: string;
-  advisor?: string;
+  advisor?: string | null;
   remarks?: string;
 }
 
@@ -26,6 +26,8 @@ const Details = ({
   initialData,
   showErrors,
 }: DetailsProps) => {
+  const { data: userData } = useGetIdentity();
+
   // Fetch Room List
   const { result } = useList({ resource: "room" });
 
@@ -35,6 +37,7 @@ const Details = ({
       ? {
           ...initialData,
           date: initialData.date?.map((d) => new Date(d)) ?? [],
+          advisor: userData?.type === "Instructor" ? null : initialData.advisor,
         }
       : {
           room: [] as string[],
@@ -42,7 +45,7 @@ const Details = ({
           date: [] as Date[],
           startTime: "",
           endTime: "",
-          advisor: "",
+          advisor: userData?.type === "Instructor" ? null : "",
           remarks: "",
         }
   );
@@ -99,7 +102,7 @@ const Details = ({
     endTime:
       showErrors && !formData.endTime ? "Please specify an end time." : "",
     advisor:
-      showErrors && !formData.advisor
+      showErrors && !formData.advisor && userData?.type !== "Instructor"
         ? "Please select your advisor’s name."
         : "",
     remarks:
@@ -192,18 +195,22 @@ const Details = ({
           </div>
         </div>
 
-        <div className="w-full">
-          <Select
-            label="Advisor"
-            placeholder="Select Advisor"
-            data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
-            description="If applicable, enter the supervising advisor/faculty"
-            clearable
-            value={formData.advisor}
-            onChange={(val) => setFormData({ ...formData, advisor: val ?? "" })}
-            error={errors.advisor}
-          />
-        </div>
+        {userData?.type !== "Instructor" && (
+          <div className="w-full">
+            <Select
+              label="Advisor"
+              placeholder="Select Advisor"
+              data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
+              description="If applicable, enter the supervising advisor/faculty"
+              clearable
+              value={formData.advisor}
+              onChange={(val) =>
+                setFormData({ ...formData, advisor: val ?? "" })
+              }
+              error={errors.advisor}
+            />
+          </div>
+        )}
 
         <div className="w-full">
           <TextInput

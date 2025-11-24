@@ -7,6 +7,8 @@ export default function RoleRedirect() {
   if (isLoading) return null;
   if (!data) return <Navigate to="/login" replace />;
 
+  if (data.is_suspended) return <Navigate to="/suspended" replace />;
+
   switch (data.type) {
     case "Student":
       return <Navigate to="/student" replace />;

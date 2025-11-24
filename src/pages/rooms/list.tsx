@@ -1,4 +1,4 @@
-import { useDelete, useGo, useTable } from "@refinedev/core";
+import { useDelete, useGetIdentity, useGo, useTable } from "@refinedev/core";
 import React, { useEffect, useState } from "react";
 import type { Room } from "../../utils/types/index";
 import { ActionIcon, Loader, MantineProvider } from "@mantine/core";
@@ -9,6 +9,7 @@ import { MdDelete } from "react-icons/md";
 
 export const RoomList: React.FC = () => {
   const gridColumns = "grid-cols-[1fr_1fr_1fr_1fr]";
+  const { data: userData } = useGetIdentity();
 
   const go = useGo();
   const {
@@ -58,59 +59,63 @@ export const RoomList: React.FC = () => {
   return (
     <>
       <MantineProvider>
-        <div className="flex flex-col gap-4 w-full h-full">
-          <button
-            className="bg-[var(--primary)] p-2 text-white rounded cursor-pointer hover:bg-[var(--primary-hover)] transition duration-200"
-            onClick={() =>
-              go({
-                to: "create",
-              })
-            }
-          >
-            Add Room
-          </button>
-          {!isLoading && rooms.length === 0 ? (
-            <NoResults subheading="We couldn’t find any rooms at the moment." />
-          ) : (
-            <DataTable
-              data={rooms}
-              gridColumns={gridColumns}
-              columns={columns}
-              isLoading={isLoading}
-              renderActions={(room) => (
-                <div className="flex gap-2">
-                  {/* <ActionIcon title="View Details">
+        {userData.type === "Admin" ? (
+          <div className="flex flex-col gap-4 w-full h-full">
+            <button
+              className="bg-[var(--primary)] p-2 text-white rounded cursor-pointer hover:bg-[var(--primary-hover)] transition duration-200"
+              onClick={() =>
+                go({
+                  to: "create",
+                })
+              }
+            >
+              Add Room
+            </button>
+            {!isLoading && rooms.length === 0 ? (
+              <NoResults subheading="We couldn’t find any rooms at the moment." />
+            ) : (
+              <DataTable
+                data={rooms}
+                gridColumns={gridColumns}
+                columns={columns}
+                isLoading={isLoading}
+                renderActions={(room) => (
+                  <div className="flex gap-2">
+                    {/* <ActionIcon title="View Details">
                     <LuEye />
                   </ActionIcon> */}
 
-                  <ActionIcon
-                    title="Show Room"
-                    onClick={() =>
-                      go({
-                        to: `edit/${room.id}`,
-                      })
-                    }
-                  >
-                    <LuPencilLine />
-                  </ActionIcon>
-                  <ActionIcon
-                    title="Delete Room"
-                    color="red"
-                    onClick={() => {
-                      mutate({
-                        resource: "room",
-                        id: room.id,
-                      });
-                    }}
-                    disabled={isDeleting}
-                  >
-                    <MdDelete />
-                  </ActionIcon>
-                </div>
-              )}
-            />
-          )}
-        </div>
+                    <ActionIcon
+                      title="Show Room"
+                      onClick={() =>
+                        go({
+                          to: `edit/${room.id}`,
+                        })
+                      }
+                    >
+                      <LuPencilLine />
+                    </ActionIcon>
+                    <ActionIcon
+                      title="Delete Room"
+                      color="red"
+                      onClick={() => {
+                        mutate({
+                          resource: "room",
+                          id: room.id,
+                        });
+                      }}
+                      disabled={isDeleting}
+                    >
+                      <MdDelete />
+                    </ActionIcon>
+                  </div>
+                )}
+              />
+            )}
+          </div>
+        ) : (
+          ""
+        )}
       </MantineProvider>
     </>
   );

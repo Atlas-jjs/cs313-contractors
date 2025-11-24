@@ -29,6 +29,9 @@ export const CalendarList = () => {
   const [selectedRoom, setSelectedRoom] = useState("");
   const [events, setEvents] = useState<ParsedCalendarEvent[]>([]);
   const [roomsQuery, setRoomQuery] = useState<Room[]>();
+  const [loadingEvent, setLoadingEvents] = useState<boolean>(false);
+
+  console.log(loadingEvent); // Temporary
 
   const startHour = 7,
     endHour = 18;
@@ -88,6 +91,8 @@ export const CalendarList = () => {
 
   useEffect(() => {
     async function fetchSchedules() {
+      setLoadingEvents(true);
+
       try {
         const { data, error } = await supabase.rpc("get_room_schedule2", {
           p_room_id: Number(selectedRoom),
@@ -95,12 +100,13 @@ export const CalendarList = () => {
           p_end: format(addDays(startWeek, 6), "yyyy-MM-dd"),
         });
 
-        console.log(data);
         if (error) throw error;
 
         setEvents(formatEvents(data));
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingEvents(false);
       }
     }
 
@@ -119,7 +125,7 @@ export const CalendarList = () => {
 
   return (
     <MantineProvider>
-      <div className="bg-white rounded-md border border-gray-200">
+      <div className="bg-white rounded-md border border-gray-200 mb-4">
         {/* Header */}
         <div
           // ref={ref}
@@ -302,7 +308,7 @@ export const CalendarList = () => {
                           return (
                             <div
                               key={idx}
-                              className={`absolute left-1 right-1 p-2 rounded transition-all shadow-md duration-100 
+                              className={`absolute left-1 right-1 p-2 rounded transition-all shadow-md duration-400 
                           ${
                             event.reserverId === currentUserId
                               ? "bg-[var(--primary)]"
@@ -334,6 +340,26 @@ export const CalendarList = () => {
           </div>
         </div>
       </div>
+      <div className="flex gap-4">
+        <div className="flex gap-2 items-center">
+          <div className={`${legendColor} bg-[var(--primary)]`}></div>
+          <span className="font-medium">Own Reservations</span>
+        </div>
+        <div className="flex gap-2 items-center">
+          <div className={`${legendColor} bg-[#CC5500]`}></div>
+          <span className="font-medium">Admin</span>
+        </div>
+        <div className="flex gap-2 items-center">
+          <div className={`${legendColor} bg-[#2E8B57]`}></div>
+          <span className="font-medium">Instructor</span>
+        </div>
+        <div className="flex gap-2 items-center">
+          <div className={`${legendColor} bg-[#6A0DAD]`}></div>
+          <span className="font-medium">Other Students</span>
+        </div>
+      </div>
     </MantineProvider>
   );
 };
+
+const legendColor = "lg:w-8 lg:h-8 rounded-full border w-4 h-4";

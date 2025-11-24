@@ -7,6 +7,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { DatePickerInput, TimePicker } from "@mantine/dates";
+import { useGetIdentity } from "@refinedev/core";
 import { useState } from "react";
 import { TbCalendar } from "react-icons/tb";
 
@@ -16,7 +17,7 @@ interface DetailsData {
   date?: Date[];
   startTime?: string;
   endTime?: string;
-  advisor?: string;
+  advisor?: string | null;
   remarks?: string;
 }
 
@@ -32,6 +33,7 @@ interface ReviewProps {
 }
 
 const Review = ({ details, resources, onAgreeChange }: ReviewProps) => {
+  const { data: userData } = useGetIdentity();
   const detail = details[0] || {};
   const resource = resources[0] || {};
   const [agreed, setAgreed] = useState(false);
@@ -95,15 +97,17 @@ const Review = ({ details, resources, onAgreeChange }: ReviewProps) => {
         </div>
 
         {/* Advisor */}
-        <div className="w-full">
-          <Select
-            label="Advisor"
-            placeholder="Select Advisor"
-            data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
-            value={detail.advisor}
-            readOnly
-          />
-        </div>
+        {userData.type !== "Instructor" && (
+          <div className="w-full">
+            <Select
+              label="Advisor"
+              placeholder="Select Advisor"
+              data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
+              value={detail.advisor}
+              readOnly
+            />
+          </div>
+        )}
 
         {/* Remarks */}
         <div className="w-full">

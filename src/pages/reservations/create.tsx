@@ -6,7 +6,7 @@ interface DetailsData {
   date?: Date[];
   startTime?: string;
   endTime?: string;
-  advisor?: string;
+  advisor?: string | null;
   remarks?: string;
 }
 
@@ -28,8 +28,9 @@ import { MantineProvider, Stepper } from "@mantine/core";
 import { TbClipboardText, TbUsersGroup, TbCheckupList } from "react-icons/tb";
 
 // Refine Import
-import { useGetIdentity, useList } from "@refinedev/core";
+import { useGetIdentity, useGo, useList } from "@refinedev/core";
 import supabase from "../../config/supabaseClient";
+import { notifyError, notifySuccess } from "../../utils/notifcations";
 
 export const ReservationCreate = () => {
   const { data: userData } = useGetIdentity();
@@ -39,10 +40,14 @@ export const ReservationCreate = () => {
   const [resourcesData, setResourcesData] = useState<ResourceData>({});
   const [showErrors, setShowErrors] = useState(false);
 
+  const go = useGo();
+
   // Fetch room table
   const { result } = useList({ resource: "room" });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     try {
       const userId = userData.user.id;
 
@@ -76,18 +81,29 @@ export const ReservationCreate = () => {
       });
 
       if (error) {
-        console.error(error);
-        alert(
-          `Error creating reservation: ${
-            error.message || JSON.stringify(error)
-          }`
-        );
-        return;
+        notifyError({
+          title: "Unable to Create Reservation",
+          message: "We couldn’t create your reservation. Please try again.", // ! Change
+        });
+
+        window.location.reload();
       }
 
-      alert("Reservation submitted successfully!");
+      notifySuccess({
+        title: "Reservation Created",
+        message: "Your reservation has been successfully submitted.",
+      });
+
+      go({
+        to: "/",
+      });
     } catch (error) {
-      alert("Error: " + error);
+      notifyError({
+        title: "System Error",
+        message:
+          "We’re having trouble processing your request. Please try again shortly.",
+      });
+      console.error(error);
     }
   };
 
@@ -104,7 +120,7 @@ export const ReservationCreate = () => {
         detailsData.date?.length > 0 &&
         detailsData.startTime &&
         detailsData.endTime &&
-        detailsData.advisor
+        detailsData.remarks
       ) {
         setActive(1);
       }
@@ -130,7 +146,7 @@ export const ReservationCreate = () => {
         }}
       >
         <div className="flex justify-center items-center">
-          <form onSubmit={handleSubmit} target=".">
+          <form onSubmit={handleSubmit}>
             <div className="bg-white p-10 rounded flex flex-col gap-6 sm:gap-8 w-4xl max-w-xl">
               <Stepper
                 active={active}
@@ -150,7 +166,7 @@ export const ReservationCreate = () => {
                 >
                   {active === 0 && (
                     <Details
-                      initialData={detailsData as any}
+                      initialData={detailsData as DetailsData}
                       onDetailsChange={setDetailsData}
                       showErrors={showErrors}
                     />
@@ -161,7 +177,7 @@ export const ReservationCreate = () => {
                   icon={<TbUsersGroup size={24} />}
                 >
                   <Resources
-                    initialData={resourcesData as any}
+                    initialData={resourcesData as ResourceData}
                     onDetailsChange={setResourcesData}
                   />
                 </Stepper.Step>

@@ -57,7 +57,7 @@ export const authProvider: AuthProvider = {
 
     const { data: userData } = await supabaseClient
       .from("user")
-      .select("type, avatar_url")
+      .select("type, avatar_url, is_suspended")
       .eq("id", authData.user?.id)
       .single();
 
@@ -65,6 +65,7 @@ export const authProvider: AuthProvider = {
       ...authData,
       type: userData?.type,
       avatar_url: userData?.avatar_url,
+      is_suspended: userData?.is_suspended,
     };
 
     return null;
