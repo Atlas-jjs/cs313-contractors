@@ -48,6 +48,8 @@ export const ReservationCreate = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (active !== 2) return;
+
     try {
       const userId = userData.user.id;
 
@@ -80,23 +82,23 @@ export const ReservationCreate = () => {
         p_participants: resourcesData.participants || null,
       });
 
-      if (error) {
-        notifyError({
-          title: "Unable to Create Reservation",
-          message: "We couldn’t create your reservation. Please try again.", // ! Change
+      if (!error) {
+        notifySuccess({
+          title: "Reservation Created",
+          message: "Your reservation has been successfully submitted.",
         });
 
-        window.location.reload();
+        go({
+          to: "/",
+        });
+        return;
       }
 
-      notifySuccess({
-        title: "Reservation Created",
-        message: "Your reservation has been successfully submitted.",
+      notifyError({
+        title: "Unable to Create Reservation",
+        message: error?.message, // ! Change
       });
-
-      go({
-        to: "/",
-      });
+      return;
     } catch (error) {
       notifyError({
         title: "System Error",
@@ -146,7 +148,7 @@ export const ReservationCreate = () => {
         }}
       >
         <div className="flex justify-center items-center">
-          <form onSubmit={handleSubmit}>
+          <div>
             <div className="bg-white p-10 rounded flex flex-col gap-6 sm:gap-8 w-4xl max-w-xl">
               <Stepper
                 active={active}
@@ -183,6 +185,7 @@ export const ReservationCreate = () => {
                 </Stepper.Step>
                 <Stepper.Step label="Review" icon={<TbCheckupList size={24} />}>
                   <Review
+                    steps={active}
                     details={detailsData ? [detailsData] : []}
                     resources={resourcesData ? [resourcesData] : []}
                     onAgreeChange={setAgreed}
@@ -193,7 +196,6 @@ export const ReservationCreate = () => {
               <div className="flex justify-between">
                 <button
                   onClick={prevStep}
-                  type="button"
                   className={`py-2 px-12 text-(--primary) border border-(--primary) rounded-sm cursor-pointer duration-200 hover:bg-(--primary) hover:text-white ${
                     active === 0 ? "invisible" : "visible"
                   }`}
@@ -203,7 +205,7 @@ export const ReservationCreate = () => {
 
                 {active === 2 ? (
                   <button
-                    type="submit"
+                    onClick={handleSubmit}
                     disabled={!agreed}
                     className="py-2 px-12 bg-(--primary) text-(--primary-white) rounded-sm cursor-pointer hover:bg-(--primary-hover) duration-200 disabled:opacity-50"
                   >
@@ -211,7 +213,6 @@ export const ReservationCreate = () => {
                   </button>
                 ) : (
                   <button
-                    type="button"
                     onClick={nextStep}
                     className="py-2 px-12 bg-(--primary) text-(--primary-white) rounded-sm cursor-pointer hover:bg-(--primary-hover) duration-200"
                   >
@@ -220,7 +221,7 @@ export const ReservationCreate = () => {
                 )}
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </MantineProvider>
     </>

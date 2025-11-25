@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { DatePickerInput, TimePicker } from "@mantine/dates";
 import { useGetIdentity } from "@refinedev/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TbCalendar } from "react-icons/tb";
 
 interface DetailsData {
@@ -27,16 +27,22 @@ interface ResourceData {
 }
 
 interface ReviewProps {
+  steps: number;
   details: DetailsData[];
   resources: ResourceData[];
   onAgreeChange?: (checked: boolean) => void;
 }
 
-const Review = ({ details, resources, onAgreeChange }: ReviewProps) => {
+const Review = ({ steps, details, resources, onAgreeChange }: ReviewProps) => {
   const { data: userData } = useGetIdentity();
   const detail = details[0] || {};
   const resource = resources[0] || {};
   const [agreed, setAgreed] = useState(false);
+
+  useEffect(() => {
+    setAgreed(false);
+    onAgreeChange?.(false);
+  }, [steps, onAgreeChange]);
 
   const handleCheckboxChange = (value: boolean) => {
     setAgreed(value);
