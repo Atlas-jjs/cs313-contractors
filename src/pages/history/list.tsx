@@ -5,14 +5,13 @@ import { useTable } from "@refinedev/core";
 import { useEffect, useState } from "react";
 
 // Mantine Import
-import { Loader, MantineProvider } from "@mantine/core";
+import { Badge, Loader, MantineProvider } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "../../components/table/DataTable";
 import type { Reservation } from "../pageUtils/types";
 import { Search } from "../../components/Search";
 import { tw } from "../../utils/styles/styles";
 import { Filter } from "../../components/Filter";
-// import supabase from "../../config/supabaseClient";
 
 export const HistoryList: React.FC = () => {
   const gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr_1fr]";
@@ -124,6 +123,20 @@ export const HistoryList: React.FC = () => {
     );
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Approved":
+        return "green";
+      case "Denied":
+      case "Cancelled":
+        return "red";
+      case "Pending":
+        return "yellow";
+      default:
+        return "gray";
+    }
+  };
+
   const columns = [
     {
       header: "Code",
@@ -186,14 +199,14 @@ export const HistoryList: React.FC = () => {
     {
       header: "Status",
       accessor: (reservation: Reservation) => (
-        <div
-          className={`p-1.5 px-4 w-fit ${
-            reservation.status === "Denied"
-              ? tw.indicatorNegative
-              : tw.indicatorPositive
-          }`}
-        >
-          {reservation.status}
+        <div className={`w-fit`}>
+          <Badge
+            size="lg"
+            variant="light"
+            color={getStatusColor(reservation.status)}
+          >
+            {reservation.status}
+          </Badge>
         </div>
       ),
       action: <Filter onClick={() => onSort("status")} />,

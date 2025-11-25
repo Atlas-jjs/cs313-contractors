@@ -56,18 +56,19 @@ export const getMenuItems = (type: string): MenuItem[] => {
     case "Instructor":
       return [
         {
-          label: "Dashboard",
-          to: "/instructor",
+          label: "Reservation",
+          to: "/reservation",
           icon: MdOutlineDashboard,
         },
         { label: "Calendar", to: "/calendar", icon: FaRegCalendar },
+        { label: "Room", to: "/room", icon: MdOutlineSensorDoor },
       ];
 
     case "Student":
       return [
         {
-          label: "Dashboard",
-          to: "/student",
+          label: "Reservation",
+          to: "/reservation",
           icon: MdOutlineDashboard,
         },
         { label: "Calendar", to: "/calendar", icon: FaRegCalendar },

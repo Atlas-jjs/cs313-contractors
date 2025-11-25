@@ -1,5 +1,11 @@
 // Refine Dev Class
-import { useTable, useUpdate } from "@refinedev/core";
+import {
+  useGetIdentity,
+  useGo,
+  useTable,
+  useUpdate,
+  type CrudFilter,
+} from "@refinedev/core";
 
 // React Import
 import { useEffect, useState } from "react";
@@ -15,10 +21,49 @@ import { FaCheck } from "react-icons/fa";
 import { Filter } from "../../components/Filter";
 import supabase from "../../config/supabaseClient";
 import { notifyError, notifySuccess } from "../pageUtils/notifcations";
-// import supabase from "../../config/supabaseClient";
+import { formatTime } from "../pageUtils/functions";
+import { LuPencilLine } from "react-icons/lu";
+import { FiSlash } from "react-icons/fi";
 
 export const ReservationList: React.FC = () => {
-  const gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr_1fr]";
+  const [permanentFilter, setPermanentFilter] = useState<CrudFilter[] | null>(
+    null
+  );
+  // Identify which user type is currently logged in
+  const [type, setType] = useState<string>("");
+  const { data: user } = useGetIdentity();
+
+  useEffect(() => {
+    if (!user) return;
+
+    setType(user.type);
+    if (type === "Admin") {
+      setPermanentFilter([
+        {
+          field: "status",
+          operator: "contains",
+          value: "Pending",
+        },
+      ]);
+    } else {
+      setPermanentFilter([
+        {
+          field: "user_id",
+          operator: "eq",
+          value: user.user.id,
+        },
+      ]);
+    }
+  }, [user, type]);
+
+  // Grid Styling
+  let gridColumns = "";
+
+  if (type !== "Admin") {
+    gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr]";
+  } else {
+    gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr_1fr]";
+  }
 
   const [searchCode, setSearchCode] = useState("");
   const [searchUser, setSearchUser] = useState("");
@@ -26,6 +71,7 @@ export const ReservationList: React.FC = () => {
   const [debouncedUser] = useDebouncedValue(searchUser, 150);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const { mutateAsync } = useUpdate();
+  const go = useGo();
 
   const {
     result,
@@ -41,13 +87,7 @@ export const ReservationList: React.FC = () => {
     pagination: { currentPage: 1, pageSize: 10 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {
-      permanent: [
-        {
-          field: "status",
-          operator: "contains",
-          value: "Pending",
-        },
-      ],
+      permanent: permanentFilter ?? [],
       initial: [
         {
           field: "reservation_code",
@@ -149,17 +189,41 @@ export const ReservationList: React.FC = () => {
     refetch();
   };
 
-  // Format data (e.g. 15:00:00+00) to human readable (3:00 PM)
-  function formatTime(time: string): string {
-    const date = new Date(`2001-09-11T${time.replace("+00", "Z")}`); // Dummy date, will be removed anyway
+  const handleDeletion = async (id: string) => {
+    try {
+      await mutateAsync(
+        {
+          resource: "reservation",
+          id: id,
+          values: {
+            status: "Cancelled",
+          },
+        },
+        {
+          onSuccess: () => {
+            notifySuccess({
+              title: "Reservation Cancelled",
+              message: "The reservation has been cancelled successfully.",
+            });
 
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "UTC",
-    });
-  }
+            go({ to: "/" });
+          },
+          onError: () => {
+            notifyError({
+              title: "Failed to cancel reservation",
+              message: "An unexpected error occurred. Please try again later.",
+            });
+          },
+        }
+      );
+    } catch (error) {
+      notifyError({
+        title: "Failed to cancel reservation",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+      console.error(error);
+    }
+  };
 
   const getSorter = (field: string) => {
     const sorter = sorters?.find((s) => s.field === field);
@@ -181,19 +245,7 @@ export const ReservationList: React.FC = () => {
     );
   };
 
-  const columns = [
-    {
-      header: "Code",
-      accessor: "reservation_code" as keyof Reservation,
-      action: (
-        <Search
-          placeholder="Search reservation"
-          data={reservations.map((r) => r.reservation_code)}
-          onChange={(value) => setSearchCode(value)}
-          value={searchCode}
-        />
-      ),
-    },
+  const userColumn = [
     {
       header: "User",
       accessor: "full_name" as keyof Reservation,
@@ -209,6 +261,22 @@ export const ReservationList: React.FC = () => {
         </div>
       ),
     },
+  ];
+
+  const columns = [
+    {
+      header: "Code",
+      accessor: "reservation_code" as keyof Reservation,
+      action: (
+        <Search
+          placeholder="Search reservation"
+          data={reservations.map((r) => r.reservation_code)}
+          onChange={(value) => setSearchCode(value)}
+          value={searchCode}
+        />
+      ),
+    },
+    ...(type === "Admin" ? userColumn : []),
     {
       header: "Purpose",
       accessor: "purpose" as keyof Reservation,
@@ -255,28 +323,65 @@ export const ReservationList: React.FC = () => {
           onPrevious={() => setCurrentPage(Math.max(currentPage - 1, 1))}
           onNext={() => setCurrentPage(Math.min(currentPage + 1, pageCount))}
           onPage={(page) => setCurrentPage(page)}
-          renderActions={(reservation) => (
-            <div className="flex gap-2">
-              <ActionIcon
-                title="Approve reservation"
-                color="green"
-                onClick={() => {
-                  handleAccept(reservation.id);
-                }}
-              >
-                <FaCheck />
-              </ActionIcon>
-              <ActionIcon
-                title="Deny reservation"
-                color="red"
-                onClick={() => {
-                  handleDenied(reservation.id);
-                }}
-              >
-                <FaXmark />
-              </ActionIcon>
-            </div>
-          )}
+          renderActions={(reservation) =>
+            type === "Admin" ? (
+              <div className="flex gap-2">
+                <ActionIcon
+                  title="Approve reservation"
+                  color="green"
+                  onClick={() => {
+                    handleAccept(reservation.id);
+                  }}
+                >
+                  <FaCheck />
+                </ActionIcon>
+                <ActionIcon
+                  title="Deny reservation"
+                  color="red"
+                  onClick={() => {
+                    handleDenied(reservation.id);
+                  }}
+                >
+                  <FaXmark />
+                </ActionIcon>
+              </div>
+            ) : type === "Student" &&
+              reservation.status !== "Approved" &&
+              reservation.status !== "Cancelled" ? (
+              <div className="flex gap-2">
+                <ActionIcon
+                  title="Edit Reservation"
+                  onClick={() =>
+                    go({
+                      to: `edit/${reservation?.id}`,
+                    })
+                  }
+                >
+                  <LuPencilLine />
+                </ActionIcon>
+                <ActionIcon
+                  title="Close Reservation"
+                  color="red"
+                  onClick={() => handleDeletion(reservation?.id ?? "")}
+                >
+                  <FiSlash />
+                </ActionIcon>
+              </div>
+            ) : reservation.status !== "Cancelled" ? (
+              <div className="flex gap-2 ml-4">
+                <ActionIcon
+                  title="Edit Reservation"
+                  onClick={() =>
+                    go({
+                      to: `edit/${reservation?.id}`,
+                    })
+                  }
+                >
+                  <LuPencilLine />
+                </ActionIcon>
+              </div>
+            ) : null
+          }
           emptyMessage="We couldn’t find any reservation at the moment."
         />
       </MantineProvider>

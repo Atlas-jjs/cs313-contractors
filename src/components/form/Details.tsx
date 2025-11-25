@@ -243,7 +243,6 @@ const Details = ({
               placeholder="Select Advisor"
               data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
               description="If applicable, enter the supervising advisor/faculty"
-              clearable
               value={formData.advisor}
               onChange={(val) =>
                 setFormData({ ...formData, advisor: val ?? "" })

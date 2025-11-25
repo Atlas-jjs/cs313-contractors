@@ -7,8 +7,7 @@ import { RxExit } from "react-icons/rx";
 import { BsLayoutSidebar, BsLayoutSidebarReverse } from "react-icons/bs";
 
 // Styles
-import { tw } from "../../utils/styles/styles";
-import { getMenuItems } from "../../utils/styles/menuItems";
+import { getMenuItems } from "../../utils/menuItems";
 import sluLogo from "../../assets/images/slu-logo.png";
 import { MenuContext } from "./MenuContext";
 
@@ -41,7 +40,7 @@ export const Menu = () => {
         className={`fixed top-0 left-0 z-40 flex flex-col bg-white h-dvh p-4 justify-between shadow-md duration-300 transform
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         sm:static sm:translate-x-0 sm:shadow-none
-        ${isOpen ? tw.sidebar : tw.sidebarOpen}`}
+        ${isOpen ? "w-54" : "w-20"}`}
       >
         <div className="flex flex-col gap-4 justify-between">
           {/* Desktop Toggle */}
@@ -83,7 +82,11 @@ export const Menu = () => {
                   className={({ isActive }) =>
                     `px-3.5 py-2 rounded-md cursor-pointer flex items-center leading-0 transition-all duration-300
                     ${isOpen ? "gap-x-2" : "gap-x-0"}  
-                    ${isActive ? tw.isActiveTab : tw.isNotActiveTab}`
+                    ${
+                      isActive
+                        ? "bg-(--primary) text-(--primary-white) hover:bg-[#0A47A3]"
+                        : "text-(--dark-secondary) hover:bg-[rgba(7,48,102,0.1)]"
+                    }`
                   }
                 >
                   <div className="shrink-0">

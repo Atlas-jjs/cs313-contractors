@@ -1,4 +1,4 @@
-import { useList } from "@refinedev/core";
+import { useGo, useList } from "@refinedev/core";
 import type { Room } from "../../pageUtils/types";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
@@ -23,32 +23,30 @@ export interface CalendarListProps {
 }
 
 export const CalendarList = () => {
+  // Fetch rooms
+  const {
+    result: roomsData,
+    query: { isLoading: roomsIsLoading },
+  } = useList<Room>({ resource: "room" });
+  const go = useGo();
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedRoom, setSelectedRoom] = useState("");
   const [events, setEvents] = useState<ParsedCalendarEvent[]>([]);
   const [roomsQuery, setRoomQuery] = useState<Room[]>();
-  const [loadingEvent, setLoadingEvents] = useState<boolean>(false);
-
-  console.log(loadingEvent); // Temporary
+  const [loadingEvents, setLoadingEvents] = useState<boolean>(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const startHour = 7,
     endHour = 18;
-
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setCurrentUserId(user?.id ?? null);
     });
   }, []);
-
-  // Fetch rooms
-  const {
-    result: roomsData,
-    query: { isLoading: roomsIsLoading },
-  } = useList<Room>({ resource: "room" });
 
   useEffect(() => {
     if (roomsData) setRoomQuery(roomsData.data);
@@ -84,17 +82,18 @@ export const CalendarList = () => {
   const weekOptions = generateWeekOptions(baseWeek);
 
   useEffect(() => {
-    if (!selectedRoom && roomsQuery?.length && !roomsIsLoading) {
+    if (roomsQuery?.length && !selectedRoom) {
       setSelectedRoom(roomsQuery[0].id.toString());
     }
-  }, [selectedRoom, roomsIsLoading, roomsQuery]);
+  }, [selectedRoom, roomsQuery]);
 
   useEffect(() => {
+    if (!selectedRoom) return;
     async function fetchSchedules() {
       setLoadingEvents(true);
 
       try {
-        const { data, error } = await supabase.rpc("get_room_schedule2", {
+        const { data, error } = await supabase.rpc("get_approved_schedules", {
           p_room_id: Number(selectedRoom),
           p_start: format(startWeek, "yyyy-MM-dd"),
           p_end: format(addDays(startWeek, 6), "yyyy-MM-dd"),
@@ -102,7 +101,9 @@ export const CalendarList = () => {
 
         if (error) throw error;
 
-        setEvents(formatEvents(data));
+        if (data) {
+          setEvents(formatEvents(data));
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -113,9 +114,7 @@ export const CalendarList = () => {
     fetchSchedules();
   }, [selectedRoom, startWeek]);
 
-  // const go = useGo();
-
-  if (roomsIsLoading) {
+  if (roomsIsLoading || loadingEvents || !selectedRoom) {
     return (
       <MantineProvider>
         <div className="flex justify-center items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -127,12 +126,9 @@ export const CalendarList = () => {
 
   return (
     <MantineProvider>
-      <div className="bg-white rounded-md border border-gray-200 mb-4">
+      <div className="bg-white rounded-md border border-gray-200 mb-4 shadow-md">
         {/* Header */}
-        <div
-          // ref={ref}
-          className="flex justify-between items-center relative pt-3 pb-3 pl-0.5 pr-0.5"
-        >
+        <div className="flex justify-between items-center relative pt-3 pb-3 pl-0.5 pr-0.5">
           {/* Week Dropdown */}
           <div className="relative">
             <button
@@ -309,14 +305,14 @@ export const CalendarList = () => {
 
                           return (
                             <div
-                              // onClick={
-                              //   event.reserverId === currentUserId
-                              //     ? () =>
-                              //         go({
-                              //           to: `show/${event.id}`,
-                              //         })
-                              //     : () => null
-                              // }
+                              onClick={
+                                event.reserverId === currentUserId
+                                  ? () =>
+                                      go({
+                                        to: `/reservation/show/${event.reservationId}`,
+                                      })
+                                  : () => null
+                              }
                               key={idx}
                               className={`absolute left-1 right-1 p-2 rounded transition-all shadow-md duration-400 text-white
                           ${

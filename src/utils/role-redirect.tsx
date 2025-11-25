@@ -8,15 +8,9 @@ export default function RoleRedirect() {
   if (!data) return <Navigate to="/login" replace />;
 
   if (data.is_suspended) return <Navigate to="/suspended" replace />;
-
-  switch (data.type) {
-    case "Student":
-      return <Navigate to="/student" replace />;
-    case "Instructor":
-      return <Navigate to="/instructor" replace />;
-    case "Admin":
-      return <Navigate to="/manage" replace />;
-    default:
-      return <Navigate to="/" replace />;
+  if (data.type === "Admin") {
+    return <Navigate to="/manage" replace />;
+  } else {
+    return <Navigate to="/reservation" replace />;
   }
 }

@@ -15,61 +15,67 @@ import {
   ThemeIcon,
   Title,
 } from "@mantine/core";
-import { useShow, useUpdate } from "@refinedev/core";
+import {
+  useGetIdentity,
+  useGo,
+  useList,
+  useShow,
+  useUpdate,
+} from "@refinedev/core";
 import { useParams } from "react-router-dom";
 import {
   IoCalendarOutline,
   IoPersonSharp,
   IoTimeOutline,
 } from "react-icons/io5";
-import type { Reservation } from "../pageUtils/types";
+import type { Reservation, Room } from "../pageUtils/types";
 import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 import supabase from "../../config/supabaseClient";
+import { formatDate, formatTime } from "../pageUtils/functions";
+import { useEffect, useState } from "react";
+import { LuPencilLine } from "react-icons/lu";
+import { FiSlash } from "react-icons/fi";
 
 export const ReservationShow = () => {
+  const [reservation, setReservation] = useState<Reservation>();
+  const [type, setType] = useState<string>();
+
   const { id } = useParams();
   const { mutateAsync } = useUpdate();
+  const go = useGo();
+  const { data: userData } = useGetIdentity();
   const {
-    query: { data, isLoading },
+    query: { data: reservationData, isLoading },
   } = useShow<Reservation>({
     resource: "all_reservation",
     id,
   });
+  const { query: rooms } = useList<Room>({ resource: "room" });
 
-  const record = data?.data;
+  useEffect(() => {
+    if (reservationData) setReservation(reservationData.data);
+  }, [reservationData]);
+
+  useEffect(() => {
+    if (userData) setType(userData.data);
+  }, [userData]);
+
+  const parsedRooms =
+    reservation?.room_ids?.map(
+      (roomId) => rooms.data?.data.find((room) => room.id === roomId)?.name
+    ) ?? [];
 
   if (isLoading) {
     return (
       <MantineProvider>
-        <div className="flex justify-center items-center h-[75dvh] w-full">
+        <div className="flex justify-center items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <Loader />
         </div>
       </MantineProvider>
     );
   }
-
-  const formatTime = (time: string) => {
-    if (!time) return "-";
-    const date = new Date(`2000-01-01T${time.replace("+00", "Z")}`);
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "UTC",
-    });
-  };
-
-  // Format Date helper
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   const handleAccept = async (id: string) => {
     try {
@@ -122,6 +128,42 @@ export const ReservationShow = () => {
     }
   };
 
+  const handleDeletion = async (id: string) => {
+    try {
+      await mutateAsync(
+        {
+          resource: "reservation",
+          id: id,
+          values: {
+            status: "Cancelled",
+          },
+        },
+        {
+          onSuccess: () => {
+            notifySuccess({
+              title: "Reservation Cancelled",
+              message: "The reservation has been cancelled successfully.",
+            });
+
+            go({ to: "/" });
+          },
+          onError: () => {
+            notifyError({
+              title: "Failed to cancel reservation",
+              message: "An unexpected error occurred. Please try again later.",
+            });
+          },
+        }
+      );
+    } catch (error) {
+      notifyError({
+        title: "Failed to cancel reservation",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+      console.error(error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Approved":
@@ -148,35 +190,70 @@ export const ReservationShow = () => {
               <Badge
                 size="lg"
                 variant="light"
-                color={getStatusColor(record?.status || "")}
+                color={getStatusColor(reservation?.status || "")}
               >
-                {record?.status}
+                {reservation?.status}
               </Badge>
             </Group>
             <Text c="dimmed" size="sm">
-              Code: {record?.reservation_code}
+              Code: {reservation?.reservation_code}
             </Text>
           </div>
-          <div className="flex gap-2">
-            <ActionIcon
-              title="Approve Reservation"
-              color="green"
-              onClick={() => {
-                handleAccept(record?.id ?? "");
-              }}
-            >
-              <FaCheck />
-            </ActionIcon>
-            <ActionIcon
-              title="Reject Reservation"
-              color="red"
-              onClick={() => {
-                handleDenied(record?.id ?? "");
-              }}
-            >
-              <FaXmark />
-            </ActionIcon>
-          </div>
+          {type === "Admin" ? (
+            <div className="flex gap-2">
+              <ActionIcon
+                title="Approve Reservation"
+                color="green"
+                onClick={() => {
+                  handleAccept(reservation?.id ?? "");
+                }}
+              >
+                <FaCheck />
+              </ActionIcon>
+              <ActionIcon
+                title="Reject Reservation"
+                color="red"
+                onClick={() => {
+                  handleDenied(reservation?.id ?? "");
+                }}
+              >
+                <FaXmark />
+              </ActionIcon>
+            </div>
+          ) : reservation?.status === "Pending" ? (
+            <div className="flex gap-2">
+              <ActionIcon
+                title="Edit Reservation"
+                onClick={() =>
+                  go({
+                    to: `/reservation/edit/${reservation?.id}`,
+                  })
+                }
+              >
+                <LuPencilLine />
+              </ActionIcon>
+              <ActionIcon
+                title="Close Reservation"
+                color="red"
+                onClick={() => handleDeletion(reservation?.id ?? "")}
+              >
+                <FiSlash />
+              </ActionIcon>
+            </div>
+          ) : reservation?.status !== "Ca" ? (
+            <div className="flex gap-2">
+              <ActionIcon
+                title="Edit Reservation"
+                onClick={() =>
+                  go({
+                    to: `/reservation/edit/${reservation?.id}`,
+                  })
+                }
+              >
+                <LuPencilLine />
+              </ActionIcon>
+            </div>
+          ) : null}
         </div>
 
         <Grid gutter="md">
@@ -192,28 +269,34 @@ export const ReservationShow = () => {
               </Title>
               <TextInput
                 label="Full Name"
-                value={record?.full_name}
+                value={reservation?.full_name}
                 readOnly
                 variant="filled"
               />
               <TextInput
                 label="Purpose"
-                value={record?.purpose}
+                value={reservation?.purpose}
                 readOnly
                 variant="filled"
               />
               <TextInput
                 label="Advisor"
-                value={record?.advisor || "N/A"}
+                value={reservation?.advisor || "N/A"}
                 readOnly
                 variant="filled"
               />
               <Textarea
                 label="Remarks"
-                value={record?.remarks || "No remarks provided."}
+                value={reservation?.remarks || "No remarks provided."}
                 readOnly
                 variant="filled"
                 minRows={3}
+              />
+              <TextInput
+                label="Room/s"
+                value={parsedRooms.join(", ") || "No rooms provided."}
+                readOnly
+                variant="filled"
               />
             </Card>
           </Grid.Col>
@@ -225,7 +308,7 @@ export const ReservationShow = () => {
                   Schedule
                 </Title>
                 <List spacing="sm" center>
-                  {record?.schedules?.map((schedule, index) => (
+                  {reservation?.schedules?.map((schedule, index) => (
                     <List.Item
                       key={index}
                       icon={
@@ -271,10 +354,10 @@ export const ReservationShow = () => {
                         </ThemeIcon>
                       }
                     >
-                      {(record?.participants || [])
+                      {(reservation?.participants || [])
                         .flat()
                         .filter((p) => p && p.trim?.() !== "").length > 0 ? (
-                        record?.participants
+                        reservation?.participants
                           .flat()
                           .filter((p) => p && p.trim?.() !== "")
                           .map((p, i) => (
@@ -295,12 +378,12 @@ export const ReservationShow = () => {
                     </Text>
                     <TagsInput
                       readOnly
-                      value={(record?.equipments || [])
+                      value={(reservation?.equipments || [])
                         .flat()
                         .filter((e) => e && String(e).trim() !== "")
                         .map((e) => String(e))}
                       placeholder={
-                        (record?.equipments || [])
+                        (reservation?.equipments || [])
                           .flat()
                           .filter((e) => e && String(e).trim() !== "").length
                           ? ""

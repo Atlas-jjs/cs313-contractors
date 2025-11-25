@@ -33,23 +33,18 @@ import { UserList, UserShow } from "./pages/users";
 import { Suspended } from "./pages/Suspended";
 import {
   ReservationCreate,
+  ReservationEdit,
   ReservationList,
   ReservationShow,
 } from "./pages/reservations";
 import { resources } from "./utils/resources";
 import { RoomCreate, RoomEdit, RoomList, RoomShow } from "./pages/rooms";
 import { HistoryList, HistoryShow } from "./pages/history";
-import { InstructorDashboard } from "./pages/InstructorDashboard";
 import { CalendarShow } from "./pages/calendar/show";
 import { CalendarList } from "./pages/calendar";
 import { RoleGuard } from "./utils/role-guard";
 import { ErrorComponent } from "./pages/ErrorComponent";
 import { MantineProvider } from "@mantine/core";
-import {
-  StudentDashboard,
-  StudentDashboardEdit,
-  StudentDashboardShow,
-} from "./pages/student";
 
 function App() {
   return (
@@ -91,41 +86,7 @@ function App() {
                   {/* Starting Route */}
                   <Route index element={<RoleRedirect />} />
 
-                  {/* Separate Dashboards */}
-                  <Route
-                    path="/student"
-                    index
-                    element={
-                      <RoleGuard allowed={["Student"]}>
-                        <StudentDashboard />
-                      </RoleGuard>
-                    }
-                  ></Route>
-                  <Route
-                    path="/student/show/:id"
-                    element={
-                      <RoleGuard allowed={["Student"]}>
-                        <StudentDashboardShow />
-                      </RoleGuard>
-                    }
-                  ></Route>
-                  <Route
-                    path="/student/edit/:id"
-                    element={
-                      <RoleGuard allowed={["Student"]}>
-                        <StudentDashboardEdit />
-                      </RoleGuard>
-                    }
-                  ></Route>
-
-                  <Route
-                    path="/instructor"
-                    element={
-                      <RoleGuard allowed={["Instructor"]}>
-                        <InstructorDashboard />
-                      </RoleGuard>
-                    }
-                  />
+                  {/* Admin Dashboard */}
                   <Route
                     path="/manage"
                     element={
@@ -193,31 +154,10 @@ function App() {
                   </Route>
                   {/* Reservation */}
                   <Route path="/reservation">
-                    <Route
-                      index
-                      element={
-                        <RoleGuard allowed={["Admin"]}>
-                          <ReservationList />
-                        </RoleGuard>
-                      }
-                    ></Route>
+                    <Route index element={<ReservationList />}></Route>
                     <Route path="create" element={<ReservationCreate />} />
-                    <Route
-                      path="show/:id"
-                      element={
-                        <RoleGuard allowed={["Admin"]}>
-                          <ReservationShow />
-                        </RoleGuard>
-                      }
-                    />
-                    {/* <Route
-                      path="edit/:id"
-                      element={
-                        <RoleGuard allowed={["Student", "Instructor"]}>
-                          <ReservationEdit />
-                        </RoleGuard>
-                      }
-                    /> */}
+                    <Route path="show/:id" element={<ReservationShow />} />
+                    <Route path="edit/:id" element={<ReservationEdit />} />
                   </Route>
                   {/* Room */}
                   <Route path="/room">

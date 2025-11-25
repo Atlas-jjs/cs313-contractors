@@ -115,7 +115,7 @@ export const RoomList: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="flex gap-4 w-full items-center justify-center">
+          <div className="flex gap-4 w-full items-center justify-center flex-wrap">
             {rooms.map((room) => (
               <RoomCard key={room.id} roomData={room} />
             ))}

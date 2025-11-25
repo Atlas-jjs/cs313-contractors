@@ -65,7 +65,7 @@ export function DataTable<T extends { id: string | number }>({
     <MantineProvider>
       {data && (
         <div>
-          <div className="border-gray-200 border flex flex-col justify-between bg-white rounded-xl">
+          <div className="border-gray-200 border flex flex-col justify-between bg-white rounded-xl shadow-md">
             {/* Desktop / Tablet Table */}
             {/* Not Finalized */}
             {/* hidden xl:block */}

@@ -10,7 +10,6 @@ export const UserInfo = () => {
   const { data, isLoading } = useGetIdentity();
 
   useEffect(() => {
-    console.log(data);
     if (!isLoading && data) {
       setLoggedInUser(data?.user.user_metadata?.full_name ?? "Unnamed user...");
     }

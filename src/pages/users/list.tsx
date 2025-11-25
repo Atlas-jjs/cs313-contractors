@@ -4,14 +4,11 @@ import { useTable, useUpdate } from "@refinedev/core";
 // Icons
 import { IoPersonCircleOutline } from "react-icons/io5";
 
-// Additional styling and components
-import { tw } from "../../utils/styles/styles";
-
 // React Import
 import { useEffect, useState } from "react";
 
 // Mantine Import
-import { ActionIcon, Loader, MantineProvider } from "@mantine/core";
+import { ActionIcon, Badge, Loader, MantineProvider } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "../../components/table/DataTable";
 import type { User } from "../pageUtils/types/index";
@@ -112,6 +109,9 @@ export const UserList: React.FC = () => {
     );
   };
 
+  const getStatusColor = (is_suspended: boolean) =>
+    is_suspended !== true ? "green" : "red";
+
   const columns = [
     {
       header: "Full Name",
@@ -157,17 +157,34 @@ export const UserList: React.FC = () => {
     },
     {
       header: "Status",
-      accessor: (user: User) => (
-        <div
-          className={`p-1.5 px-4 w-fit ${
-            user.is_suspended === false
-              ? tw.indicatorPositive
-              : tw.indicatorNegative
-          }`}
-        >
-          {user.is_suspended === false ? "Active" : "Suspended"}
-        </div>
-      ),
+      accessor: (user: User) => {
+        if (user.is_suspended === false) {
+          return (
+            <div className="w-fit">
+              <Badge
+                size="lg"
+                variant="light"
+                color={getStatusColor(user.is_suspended)}
+              >
+                {user.is_suspended ? "Suspended" : "Active"}
+              </Badge>
+            </div>
+          );
+        } else {
+          return (
+            <div className="w-fit">
+              <Badge
+                size="lg"
+                variant="light"
+                color={getStatusColor(user.is_suspended)}
+              >
+                Suspended
+              </Badge>
+            </div>
+          );
+        }
+      },
+
       action: <Filter onClick={() => onSort("is_suspended")} />,
     },
   ];

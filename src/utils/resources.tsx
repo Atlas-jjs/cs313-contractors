@@ -4,16 +4,6 @@ export const resources: ResourceProps[] = [
   { name: "calendar", list: "/calendar" },
   { name: "Admin Panel", list: "/manage" },
   {
-    name: "Student Dashboard",
-    list: "/student",
-    show: "/student/show/:id",
-    edit: "/student/edit/:id",
-  },
-  // {
-  //   name: "Dashboard",
-  //   list: "/instructor",
-  // },
-  {
     name: "reservation",
     list: "/reservation",
     show: "/reservation/show/:id",
