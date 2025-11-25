@@ -46,6 +46,8 @@ import { RoleGuard } from "./utils/role-guard";
 import { ErrorComponent } from "./pages/ErrorComponent";
 import { MantineProvider } from "@mantine/core";
 
+import { userSuspensionChannel } from "./utils/realtime";
+
 function App() {
   return (
     <>

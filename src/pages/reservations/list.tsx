@@ -347,7 +347,8 @@ export const ReservationList: React.FC = () => {
               </div>
             ) : type === "Student" &&
               reservation.status !== "Approved" &&
-              reservation.status !== "Cancelled" ? (
+              reservation.status !== "Cancelled" &&
+              reservation.status !== "Denied" ? (
               <div className="flex gap-2">
                 <ActionIcon
                   title="Edit Reservation"
@@ -367,7 +368,8 @@ export const ReservationList: React.FC = () => {
                   <FiSlash />
                 </ActionIcon>
               </div>
-            ) : reservation.status !== "Cancelled" ? (
+            ) : reservation.status !== "Cancelled" &&
+              reservation.status !== "Denied" ? (
               <div className="flex gap-2 ml-4">
                 <ActionIcon
                   title="Edit Reservation"

@@ -21,6 +21,24 @@ import {
   Legend,
 } from "chart.js";
 export const AdminDashboard = () => {
+  // useEffect(() => {
+  //   const channel = supabase
+  //     .channel("admin_db_changes")
+  //     .on(
+  //       "postgres_changes",
+  //       { event: "*", schema: "public", table: "reservation" },
+  //       (payload) => {
+  //         console.log(payload);
+  //         // fetchAllData();
+  //       }
+  //     )
+  //     .subscribe();
+
+  //   return () => {
+  //     supabase.removeChannel(channel);
+  //   };
+  // }, []);
+
   ChartJS.register(
     CategoryScale,
     LinearScale,

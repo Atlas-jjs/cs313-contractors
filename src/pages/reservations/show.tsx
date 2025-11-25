@@ -240,7 +240,8 @@ export const ReservationShow = () => {
                 <FiSlash />
               </ActionIcon>
             </div>
-          ) : reservation?.status !== "Ca" ? (
+          ) : reservation?.status !== "Cancelled" &&
+            reservation?.status !== "Denied" ? (
             <div className="flex gap-2">
               <ActionIcon
                 title="Edit Reservation"
