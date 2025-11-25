@@ -10,7 +10,6 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "../../components/table/DataTable";
 import type { Reservation } from "../pageUtils/types";
 import { Search } from "../../components/Search";
-import { tw } from "../../utils/styles/styles";
 import { Filter } from "../../components/Filter";
 
 export const HistoryList: React.FC = () => {
