@@ -10,6 +10,9 @@ import { useGo, useShow, useUpdate } from "@refinedev/core";
 import { useEffect, useState } from "react";
 import type { Room } from "../../pageUtils/types";
 import { notifyError, notifySuccess } from "../../pageUtils/notifcations";
+import supabase from "../../../config/supabaseClient";
+import { Dropzone } from "@mantine/dropzone";
+import { MdAddPhotoAlternate, MdErrorOutline, MdOutlineFileUpload } from "react-icons/md";
 
 export const RoomEdit = () => {
   // Store the fetched room data
@@ -20,6 +23,13 @@ export const RoomEdit = () => {
   const [description, setDescription] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [capacity, setCapacity] = useState<number>();
+
+  const [images, setImages] = useState<string[]>([]);
+  const [deletedImages, setDeletedImages] = useState<string[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const extractPath = (url: string) => {
+    return url.split("room_thumbnails/")[1];
+  }
 
   const go = useGo();
 
@@ -34,15 +44,17 @@ export const RoomEdit = () => {
   } = useUpdate();
 
   useEffect(() => {
-    if (data) setRoom(data.data);
-    if (room) {
-      setName(room.name);
-      setSpecificRoom(room.room);
-      setDescription(room.description);
-      setStatus(room.status);
-      setCapacity(room.capacity);
+    if (data?.data) {
+      const roomData = data.data;
+      setRoom(roomData);
+      setName(roomData.name);
+      setSpecificRoom(roomData.room);
+      setDescription(roomData.description);
+      setStatus(roomData.status);
+      setCapacity(roomData.capacity);
+      setImages(roomData.images || []);
     }
-  }, [data, room]);
+  }, [data]);
 
   if (error) return <p>Error: {error.message}</p>;
 
@@ -59,7 +71,39 @@ export const RoomEdit = () => {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!room?.id) {
+      notifyError({ title: "Error", message: "Room data not loaded." });
+      return;
+    }
+
     try {
+      let finalImages = [...(room?.images || [])];
+
+      for (const url of deletedImages) {
+        const path = extractPath(url);
+        await supabase.storage.from("room_thumbnails").remove([path]);
+        finalImages = finalImages.filter((img) => img !== url);
+      }
+
+      const uploadedUrls = await Promise.all(
+        newFiles.map(async (file, index) => {
+          const ext = file.name.split(".").pop();
+          const path = `room-${room.id}/thumbnail-${Date.now()}-${index}.${ext}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("room_thumbnails")
+            .upload(path, file, { upsert: true });
+          if (uploadError) throw uploadError;
+
+          const { data: publicUrlData } = supabase.storage
+            .from("room_thumbnails")
+            .getPublicUrl(path);
+          return publicUrlData.publicUrl;
+        })
+      );
+
+      finalImages.push(...uploadedUrls);
+
       await mutate(
         {
           resource: "room",
@@ -70,6 +114,7 @@ export const RoomEdit = () => {
             status: status,
             description: description,
             capacity: capacity,
+            images: finalImages,
           },
         },
         {
@@ -114,6 +159,33 @@ export const RoomEdit = () => {
           onSubmit={handleUpdate}
           className="w-2xl h-max bg-white rounded-xl p-8 border border-gray-200 flex flex-col gap-4"
         >
+          <Dropzone
+            onDrop={(files) => {
+              setNewFiles((prev) => [...prev, ...files]);
+              const previews = files.map((file) => URL.createObjectURL(file));
+              setImages((prev) => [...prev, ...previews]);
+            }}
+            accept={{ "image/*": [], "video/mp4": [] }}
+            maxSize={5 * 1024 * 1024} // 5 MB
+          >
+            <div className="flex justify-center items-center gap-4 border rounded border-dashed cursor-pointer hover:bg-gray-100 transition-colors duration-200 p-4">
+              <Dropzone.Accept>
+                <MdOutlineFileUpload size={52} />
+              </Dropzone.Accept>
+              <Dropzone.Reject>
+                <MdErrorOutline size={52} />
+              </Dropzone.Reject>
+              <Dropzone.Idle>
+                <MdAddPhotoAlternate size={52} />
+              </Dropzone.Idle>
+
+              <div>
+                <h1>Drag images here or click to select files</h1>
+                <p>Attach as many files as you like, each file should not exceed 5MB</p>
+              </div>
+            </div>
+          </Dropzone>
+
           <div>
             <TextInput
               label="Facility"
@@ -169,6 +241,37 @@ export const RoomEdit = () => {
               />
             </div>
           </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">Images</label>
+
+            {images.length > 0 ? (
+              <div className="grid grid-cols-3 gap-4">
+                {images.map((img, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={img}
+                      className="w-full h-28 object-cover rounded border"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeletedImages((prev) => [...prev, img])
+                        setImages((prev) => prev.filter((_, i) => i !== index));
+                      }}
+                      className="absolute top-1 right-1 bg-(--primary) text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No images available</p>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={isUpdating || isFetching}
