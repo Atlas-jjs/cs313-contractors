@@ -10,28 +10,36 @@ import {
   Stack,
   TagsInput,
   Text,
-  Textarea,
   TextInput,
   ThemeIcon,
   Title,
 } from "@mantine/core";
-import { useGo, useShow, useUpdate } from "@refinedev/core";
+import { useGo, useList, useShow, useUpdate } from "@refinedev/core";
 import { useParams } from "react-router-dom";
 import {
   IoCalendarOutline,
   IoPersonSharp,
   IoTimeOutline,
 } from "react-icons/io5";
-import type { Reservation } from "../pageUtils/types";
+import type { Reservation, Room } from "../pageUtils/types";
 
 import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 import { LuPencilLine } from "react-icons/lu";
 import { FiSlash } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { formatDate, formatTime } from "../pageUtils/functions";
 
 export const StudentDashboardShow = () => {
+  const [record, setRecord] = useState<Reservation>();
+
+  // Used for routing users
   const go = useGo();
-  const { id } = useParams();
+
+  // For mutating
   const { mutateAsync } = useUpdate();
+
+  // Parsed the id since the resource URL is not properly aligned to the configuration
+  const { id } = useParams();
   const {
     query: { data, isLoading },
   } = useShow<Reservation>({
@@ -39,7 +47,17 @@ export const StudentDashboardShow = () => {
     id,
   });
 
-  const record = data?.data;
+  // Fetch the rooms
+  const { query: rooms } = useList<Room>({ resource: "room" });
+
+  useEffect(() => {
+    if (data) setRecord(data?.data);
+  }, [data]);
+
+  const parsedRooms =
+    record?.room_ids?.map(
+      (roomId) => rooms.data?.data.find((room) => room.id === roomId)?.name
+    ) ?? [];
 
   if (isLoading) {
     return (
@@ -51,47 +69,37 @@ export const StudentDashboardShow = () => {
     );
   }
 
-  const formatTime = (time: string) => {
-    if (!time) return "-";
-    const date = new Date(`2000-01-01T${time.replace("+00", "Z")}`);
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "UTC",
-    });
-  };
-
-  // Format Date helper
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const handleDeletion = async (id: string) => {
     try {
-      await mutateAsync({
-        resource: "reservation",
-        id: id,
-        values: {
-          status: "Closed",
+      await mutateAsync(
+        {
+          resource: "reservation",
+          id: id,
+          values: {
+            status: "Closed",
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            notifySuccess({
+              title: "Reservation Closed",
+              message: "The reservation has been closed successfully.",
+            });
 
-      notifySuccess({
-        title: "Reservation Closed",
-        message: "The reservation has been closed successfully.",
-      });
-
-      go({ to: "/" });
+            go({ to: "/" });
+          },
+          onError: () => {
+            notifyError({
+              title: "Failed to closed reservation",
+              message: "An unexpected error occurred. Please try again later.",
+            });
+          },
+        }
+      );
     } catch (error) {
       notifyError({
         title: "Failed to closed reservation",
-        message: "Something went wrong.",
+        message: "An unexpected error occurred. Please try again later.",
       });
       console.error(error);
     }
@@ -184,12 +192,17 @@ export const StudentDashboardShow = () => {
                 readOnly
                 variant="filled"
               />
-              <Textarea
+              <TextInput
                 label="Remarks"
                 value={record?.remarks || "No remarks provided."}
                 readOnly
                 variant="filled"
-                minRows={3}
+              />
+              <TextInput
+                label="Room/s"
+                value={parsedRooms.join(", ") || "No rooms provided."}
+                readOnly
+                variant="filled"
               />
             </Card>
           </Grid.Col>

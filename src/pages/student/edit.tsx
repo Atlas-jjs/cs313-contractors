@@ -120,7 +120,7 @@ export const StudentDashboardEdit = () => {
         p_advisor: advisor,
         p_remarks: remarks,
         p_participants: participants,
-        p_equipments: equipments.map((e) => ({ item: e })),
+        p_equipments: equipments,
       });
 
       if (data.status !== "success") {

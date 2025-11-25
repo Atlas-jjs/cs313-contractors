@@ -1,11 +1,5 @@
-import {
-  Loader,
-  MantineProvider,
-  Title,
-  Text,
-  Grid,
-} from "@mantine/core";
-import { useShow } from "@refinedev/core";
+import { Loader, MantineProvider, Title, Text, Grid } from "@mantine/core";
+import { useGo, useShow } from "@refinedev/core";
 import { useEffect, useState } from "react";
 import type { Room } from "../pageUtils/types";
 import supabase from "../../config/supabaseClient";
@@ -15,12 +9,20 @@ export const RoomShow = () => {
   const [room, setRoom] = useState<Room>();
   const [imageUrl, setImageUrl] = useState<string>("");
   // Hardcoded equipment
-  const equipmentList = ["Chair", "Table", "Air Conditioner", "Cables", "Curtain"];
-
+  const equipmentList = [
+    "Chair",
+    "Table",
+    "Air Conditioner",
+    "Cables",
+    "Curtain",
+  ];
 
   const {
     query: { data, isLoading, error },
   } = useShow<Room>();
+
+  // Temporary
+  const go = useGo();
 
   // Load room data
   useEffect(() => {
@@ -61,12 +63,12 @@ export const RoomShow = () => {
           <Grid gutter="xl" className="h-full">
             <Grid.Col span={{ base: 12, md: 6 }}>
               <section className="flex flex-col gap-4">
-                <div className="flex-1 rounded-lg overflow-hidden border border-gray-300">
+                <div className="rounded-lg overflow-hidden border border-gray-300 h-125 flex items-center justify-center">
                   {imageUrl ? (
                     <img
                       src={imageUrl}
                       alt="Room Thumbnail"
-                      className="w-full h-full object-cover"
+                      className="max-h-full max-w-full object-contain"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
@@ -75,12 +77,14 @@ export const RoomShow = () => {
                   )}
                 </div>
 
-                <div className="flex gap-3 h-24">
+                <div className="flex gap-3 h-24 justify-center">
                   {room.images && room.images.length > 0 ? (
                     room.images.map((img, index) => (
                       <div
                         key={index}
-                        className={`h-full w-24 rounded-md overflow-hidden border border-gray-300 cursor-pointer hover:opacity-80 transition ${img === imageUrl ? "border-blue-500" : ""}`}
+                        className={`h-full w-24 rounded-md overflow-hidden border border-gray-300 cursor-pointer hover:opacity-80 transition ${
+                          img === imageUrl ? "border-blue-500" : ""
+                        }`}
                         onClick={() => setImageUrl(img)}
                       >
                         <img src={img} className="w-full h-full object-cover" />
@@ -98,21 +102,26 @@ export const RoomShow = () => {
             <Grid.Col span={{ base: 12, md: 6 }}>
               <section className="flex flex-col gap-6 p-12 h-full">
                 <div className="flex flex-col gap-2">
-                  <Title order={1} className="text-[var(--dark-primary)] text-4xl self-left">
+                  <Title
+                    order={1}
+                    className="text-(--dark-primary) text-4xl self-left"
+                  >
                     {room?.name ?? "Undefined"}
                   </Title>
 
-                  <Text c="dimmed" size="sm">
+                  <Text c="dimmed" size="md">
                     {room?.room ?? "Undefined"}
                   </Text>
 
-                  <Text size="sm" className="mt-6">
+                  <Text size="lg" className="mt-6">
                     {room?.description ?? "Undefined"}
                   </Text>
                 </div>
 
                 <div className="mt-4">
-                  <Text className="font-semibold mb-2">Available Equipments</Text>
+                  <Text className="font-semibold mb-2">
+                    Available Equipments
+                  </Text>
                   <ul className="list-disc list-inside">
                     {equipmentList.map((item, index) => (
                       <li key={index}>{item}</li>
@@ -121,18 +130,22 @@ export const RoomShow = () => {
                 </div>
 
                 <button
+                  onClick={() => {
+                    go({ to: "/reservation/create" });
+                  }}
                   className="
                     self-center mt-auto w-2/3
-                    bg-[var(--primary)]
-                    text-[var(--primary-white)]
-                    hover:bg-[var(--primary-hover)]
+                    bg-(--primary)
+                    text-(--primary-white)
+                    hover:bg-(--primary-hover)
                     transition-colors duration-300
                     py-3 rounded-lg font-medium
                     border-none
+                    cursor-pointer
                   "
                 >
-                  Reserve
-                </button> 
+                  Create a Reservation
+                </button>
               </section>
             </Grid.Col>
           </Grid>

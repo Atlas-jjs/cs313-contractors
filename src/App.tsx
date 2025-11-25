@@ -196,7 +196,7 @@ function App() {
                     <Route
                       index
                       element={
-                        <RoleGuard allowed={["Admin", "Student", "Instructor"]}>
+                        <RoleGuard allowed={["Admin"]}>
                           <ReservationList />
                         </RoleGuard>
                       }
@@ -205,7 +205,7 @@ function App() {
                     <Route
                       path="show/:id"
                       element={
-                        <RoleGuard allowed={["Admin", "Student", "Instructor"]}>
+                        <RoleGuard allowed={["Admin"]}>
                           <ReservationShow />
                         </RoleGuard>
                       }

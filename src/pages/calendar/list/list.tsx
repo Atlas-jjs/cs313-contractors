@@ -113,6 +113,8 @@ export const CalendarList = () => {
     fetchSchedules();
   }, [selectedRoom, startWeek]);
 
+  // const go = useGo();
+
   if (roomsIsLoading) {
     return (
       <MantineProvider>
@@ -307,11 +309,19 @@ export const CalendarList = () => {
 
                           return (
                             <div
+                              // onClick={
+                              //   event.reserverId === currentUserId
+                              //     ? () =>
+                              //         go({
+                              //           to: `show/${event.id}`,
+                              //         })
+                              //     : () => null
+                              // }
                               key={idx}
                               className={`absolute left-1 right-1 p-2 rounded transition-all shadow-md duration-400 text-white
                           ${
                             event.reserverId === currentUserId
-                              ? "bg-(--primary)"
+                              ? "bg-(--primary) hover:bg-(--primary-hover) transition-all duration-200 cursor-pointer hover:-translate-y-2"
                               : event.reserverType === "Admin"
                               ? "bg-[#CC5500]"
                               : event.reserverType === "Instructor"

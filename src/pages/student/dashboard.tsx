@@ -115,9 +115,9 @@ export const StudentDashboard = () => {
       ),
     },
     {
-      header: "Purpose",
-      accessor: "purpose" as keyof Reservation,
-      action: <Filter onClick={() => onSort("purpose")} />,
+      header: "Remarks",
+      accessor: "remarks" as keyof Reservation,
+      action: <Filter onClick={() => onSort("remarks")} />,
     },
     {
       header: "Date(s)",

@@ -6,6 +6,7 @@ import { NoResults } from "../../components/NoResults";
 import { DataTable } from "../../components/table/DataTable";
 import { LuPencilLine } from "react-icons/lu";
 import { MdDelete } from "react-icons/md";
+import { RoomCard } from "../../components/RoomCard";
 
 export const RoomList: React.FC = () => {
   const gridColumns = "grid-cols-[1fr_1fr_1fr_1fr]";
@@ -114,7 +115,11 @@ export const RoomList: React.FC = () => {
             )}
           </div>
         ) : (
-          ""
+          <div className="flex gap-4 w-full items-center justify-center">
+            {rooms.map((room) => (
+              <RoomCard key={room.id} roomData={room} />
+            ))}
+          </div>
         )}
       </MantineProvider>
     </>
