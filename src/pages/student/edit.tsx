@@ -22,6 +22,7 @@ import { IoCalendarOutline, IoTimeOutline } from "react-icons/io5";
 import type { Reservation } from "../pageUtils/types";
 import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 import supabase from "../../config/supabaseClient";
+import { useDebouncedValue } from "@mantine/hooks";
 
 export const StudentDashboardEdit = () => {
   const go = useGo();
@@ -45,6 +46,11 @@ export const StudentDashboardEdit = () => {
   const [participants, setParticipants] = useState<string[]>([]);
   const [equipments, setEquipments] = useState<string[]>([]);
 
+  const [tempRemarks, setTempRemarks] = useState("");
+  const [debouncedRemarks] = useDebouncedValue(tempRemarks, 300);
+
+  console.log(record);
+
   // Populate state when record is loaded
   useEffect(() => {
     if (record) {
@@ -52,10 +58,16 @@ export const StudentDashboardEdit = () => {
       setPurpose(record.purpose ?? "");
       setAdvisor(record.advisor ?? "");
       setRemarks(record.remarks ?? "");
+      setTempRemarks(record.remarks ?? "");
+
       setParticipants(record.participants?.flat() ?? []);
       setEquipments(record.equipments?.flat().map(String) ?? []);
     }
   }, [record]);
+
+  useEffect(() => {
+    setRemarks(debouncedRemarks);
+  }, [debouncedRemarks]);
 
   if (isLoading) {
     return (
@@ -107,23 +119,23 @@ export const StudentDashboardEdit = () => {
         p_purpose: purpose,
         p_advisor: advisor,
         p_remarks: remarks,
-        p_participants: JSON.stringify(participants), // now jsonb
-        p_equipments: JSON.stringify(equipments.map((e) => ({ item: e }))),
+        p_participants: participants,
+        p_equipments: equipments.map((e) => ({ item: e })),
       });
 
-      if (data) {
-        notifySuccess({
-          title: "Reservation Updated",
-          message: "The reservation has been updated successfully.",
+      if (data.status !== "success") {
+        notifyError({
+          title: "Failed to update reservation",
+          message: error?.message,
         });
-        go({ to: "/" });
+        console.error(error);
       }
 
-      notifyError({
-        title: "Failed to update reservation",
-        message: error?.message,
+      notifySuccess({
+        title: "Reservation Updated",
+        message: "The reservation has been updated successfully.",
       });
-      console.error(error);
+      go({ to: "/" });
     } catch (error) {
       notifyError({
         title: "Failed to update reservation",
@@ -180,7 +192,7 @@ export const StudentDashboardEdit = () => {
                 General Information
               </Title>
               <TextInput
-                readOnly
+                disabled
                 label="Full Name"
                 value={fullName}
                 onChange={(e) => setFullName(e.currentTarget.value)}
@@ -227,10 +239,11 @@ export const StudentDashboardEdit = () => {
                 onChange={(e) => setAdvisor(e.currentTarget.value)}
               /> */}
               <Textarea
+                readOnly
                 label="Remarks"
-                value={remarks}
+                value={tempRemarks}
                 styles={{ input: { height: 150 } }}
-                onChange={(e) => setRemarks(e.currentTarget.value)}
+                onChange={(e) => setTempRemarks(e.currentTarget.value)}
               />
             </Card>
           </Grid.Col>
@@ -309,7 +322,7 @@ export const StudentDashboardEdit = () => {
               });
             }}
           >
-            Cancel Reservation
+            Cancel
           </button>
           <button
             type="submit"

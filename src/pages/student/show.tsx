@@ -26,7 +26,7 @@ import type { Reservation } from "../pageUtils/types";
 
 import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 import { LuPencilLine } from "react-icons/lu";
-import { MdDelete } from "react-icons/md";
+import { FiSlash } from "react-icons/fi";
 
 export const StudentDashboardShow = () => {
   const go = useGo();
@@ -83,14 +83,14 @@ export const StudentDashboardShow = () => {
       });
 
       notifySuccess({
-        title: "Reservation Deleted",
-        message: "The reservation has been updated successfully.",
+        title: "Reservation Closed",
+        message: "The reservation has been closed successfully.",
       });
 
       go({ to: "/" });
     } catch (error) {
       notifyError({
-        title: "Failed to delete reservation",
+        title: "Failed to closed reservation",
         message: "Something went wrong.",
       });
       console.error(error);
@@ -145,11 +145,11 @@ export const StudentDashboardShow = () => {
                 <LuPencilLine />
               </ActionIcon>
               <ActionIcon
-                title="Delete Room"
+                title="Close Reservation"
                 color="red"
                 onClick={() => handleDeletion(record?.id ?? "")}
               >
-                <MdDelete />
+                <FiSlash />
               </ActionIcon>
             </div>
           )}
