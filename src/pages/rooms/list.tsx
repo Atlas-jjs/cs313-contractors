@@ -1,12 +1,13 @@
 import { useDelete, useGetIdentity, useGo, useTable } from "@refinedev/core";
 import React, { useEffect, useState } from "react";
 import type { Room } from "../pageUtils/types/index";
-import { ActionIcon, Loader, MantineProvider } from "@mantine/core";
+import { ActionIcon, Button, Loader, MantineProvider } from "@mantine/core";
 import { NoResults } from "../../components/NoResults";
 import { DataTable } from "../../components/table/DataTable";
 import { LuPencilLine } from "react-icons/lu";
 import { MdDelete } from "react-icons/md";
 import { RoomCard } from "../../components/RoomCard";
+import { IoMdAdd } from "react-icons/io";
 
 export const RoomList: React.FC = () => {
   const gridColumns = "grid-cols-[1fr_1fr_1fr_1fr]";
@@ -61,17 +62,17 @@ export const RoomList: React.FC = () => {
     <>
       <MantineProvider>
         {userData.type === "Admin" ? (
-          <div className="flex flex-col gap-4 w-full h-full">
-            <button
-              className="bg-(--primary) p-2 text-white rounded cursor-pointer hover:bg-(--primary-hover) transition duration-200"
-              onClick={() =>
-                go({
-                  to: "create",
-                })
-              }
+          <div className="w-full h-full">
+            <Button
+              variant="filled"
+              color="#073066"
+              className="transition-all duration-300 hover:shadow-blue-300/40 hover:bg-(--primary-hover) mb-4"
+              leftSection={<IoMdAdd size={18} />}
+              onClick={() => go({ to: "create" })}
             >
               Add Room
-            </button>
+            </Button>
+
             {!isLoading && rooms.length === 0 ? (
               <NoResults subheading="We couldn’t find any rooms at the moment." />
             ) : (

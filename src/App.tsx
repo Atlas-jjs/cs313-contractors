@@ -52,11 +52,7 @@ function App() {
   return (
     <>
       <MantineProvider>
-        <Notifications
-          // id="notifications-root"
-          position="top-right"
-          limit={4}
-        />
+        <Notifications position="top-right" limit={4} />
         <BrowserRouter>
           <RefineKbarProvider>
             <Refine

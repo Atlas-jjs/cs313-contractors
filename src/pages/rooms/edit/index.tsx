@@ -12,7 +12,11 @@ import type { Room } from "../../pageUtils/types";
 import { notifyError, notifySuccess } from "../../pageUtils/notifcations";
 import supabase from "../../../config/supabaseClient";
 import { Dropzone } from "@mantine/dropzone";
-import { MdAddPhotoAlternate, MdErrorOutline, MdOutlineFileUpload } from "react-icons/md";
+import {
+  MdAddPhotoAlternate,
+  MdErrorOutline,
+  MdOutlineFileUpload,
+} from "react-icons/md";
 
 export const RoomEdit = () => {
   // Store the fetched room data
@@ -29,7 +33,7 @@ export const RoomEdit = () => {
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const extractPath = (url: string) => {
     return url.split("room_thumbnails/")[1];
-  }
+  };
 
   const go = useGo();
 
@@ -88,7 +92,9 @@ export const RoomEdit = () => {
       const uploadedUrls = await Promise.all(
         newFiles.map(async (file, index) => {
           const ext = file.name.split(".").pop();
-          const path = `room-${room.id}/thumbnail-${Date.now()}-${index}.${ext}`;
+          const path = `room-${
+            room.id
+          }/thumbnail-${Date.now()}-${index}.${ext}`;
 
           const { error: uploadError } = await supabase.storage
             .from("room_thumbnails")
@@ -181,7 +187,10 @@ export const RoomEdit = () => {
 
               <div>
                 <h1>Drag images here or click to select files</h1>
-                <p>Attach as many files as you like, each file should not exceed 5MB</p>
+                <p>
+                  Attach as many files as you like, each file should not exceed
+                  5MB
+                </p>
               </div>
             </div>
           </Dropzone>
@@ -251,16 +260,16 @@ export const RoomEdit = () => {
                   <div key={index} className="relative group">
                     <img
                       src={img}
-                      className="w-full h-28 object-cover rounded border"
+                      className="w-full h-28 object-cover rounded"
                     />
 
                     <button
                       type="button"
                       onClick={() => {
-                        setDeletedImages((prev) => [...prev, img])
+                        setDeletedImages((prev) => [...prev, img]);
                         setImages((prev) => prev.filter((_, i) => i !== index));
                       }}
-                      className="absolute top-1 right-1 bg-(--primary) text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                      className="absolute top-1 right-1 bg-(--primary) text-white text-xs w-6 h-6 rounded opacity-0 group-hover:opacity-100 transition cursor-pointer hover:bg-(--primary-hover)"
                     >
                       ✕
                     </button>
@@ -275,7 +284,7 @@ export const RoomEdit = () => {
           <button
             type="submit"
             disabled={isUpdating || isFetching}
-            className="p-3 bg-(--primary) cursor-pointer text-white rounded"
+            className="p-3 bg-(--primary) cursor-pointer text-white rounded transition-all duration-200 hover:bg-(--primary-hover)"
           >
             Submit
           </button>
