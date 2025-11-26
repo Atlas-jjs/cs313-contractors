@@ -14,7 +14,7 @@ export const NoResults = ({ subheading }: NoResultsProps) => {
             alt="No Result Icon"
             className={"w-50 h-50 mb-4"}
           />
-          <h2 className="font-medium text-[var(--dark-primary)]">
+          <h2 className="font-medium text-(--dark-primary)">
             No results found.
           </h2>
           <h3 className="text-gray-500">{subheading}</h3>

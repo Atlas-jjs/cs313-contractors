@@ -82,7 +82,7 @@ export const UserShow = () => {
   return (
     <MantineProvider>
       <div className="w-full h-full flex flex-col gap-6">
-        <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200 shadow-md">
           <div>
             <Group>
               <Title order={2} className="text-[var(--primary)]">
@@ -190,7 +190,7 @@ export const UserShow = () => {
             >
               <Title order={4}>Profile Picture</Title>
 
-              <div className="w-40 h-40 rounded-full overflow-hidden border border-gray-300 shadow-sm">
+              <div className="w-40 h-40 rounded-full overflow-hidden border border-gray-300 shadow-md">
                 {user?.avatar_url ? (
                   <img
                     src={user.avatar_url}

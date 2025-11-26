@@ -11,7 +11,13 @@ import {
 import { useEffect, useState } from "react";
 
 // Mantine Import
-import { Loader, MantineProvider, ActionIcon } from "@mantine/core";
+import {
+  Loader,
+  MantineProvider,
+  ActionIcon,
+  Badge,
+  Button,
+} from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "../../components/table/DataTable";
 import type { Reservation } from "../pageUtils/types";
@@ -24,11 +30,15 @@ import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 import { formatTime } from "../pageUtils/functions";
 import { LuPencilLine } from "react-icons/lu";
 import { FiSlash } from "react-icons/fi";
+import { IoMdAdd } from "react-icons/io";
 
 export const ReservationList: React.FC = () => {
   const [permanentFilter, setPermanentFilter] = useState<CrudFilter[] | null>(
     null
   );
+
+  const gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr_1fr]";
+
   // Identify which user type is currently logged in
   const [type, setType] = useState<string>("");
   const { data: user } = useGetIdentity();
@@ -55,15 +65,6 @@ export const ReservationList: React.FC = () => {
       ]);
     }
   }, [user, type]);
-
-  // Grid Styling
-  let gridColumns = "";
-
-  if (type !== "Admin") {
-    gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr]";
-  } else {
-    gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr_1fr]";
-  }
 
   const [searchCode, setSearchCode] = useState("");
   const [searchUser, setSearchUser] = useState("");
@@ -104,9 +105,19 @@ export const ReservationList: React.FC = () => {
     },
   });
 
+  // Realtime
+  useEffect(() => {
+    function onUpdate() {
+      refetch();
+    }
+
+    window.addEventListener("reservation-updated", onUpdate);
+    return () => window.removeEventListener("reservation-updated", onUpdate);
+  }, [refetch]);
+
   useEffect(() => {
     if (result) setReservations(result.data);
-  }, [result]);
+  }, [result, reservations]);
 
   useEffect(() => {
     setFilters([
@@ -142,6 +153,8 @@ export const ReservationList: React.FC = () => {
       });
 
       const result = JSON.parse(data);
+
+      console.log(result);
 
       if (result.status !== "success" || error) {
         notifyError({
@@ -189,7 +202,7 @@ export const ReservationList: React.FC = () => {
     refetch();
   };
 
-  const handleDeletion = async (id: string) => {
+  const handleCancellation = async (id: string) => {
     try {
       await mutateAsync(
         {
@@ -245,6 +258,20 @@ export const ReservationList: React.FC = () => {
     );
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Approved":
+        return "green";
+      case "Denied":
+      case "Cancelled":
+        return "red";
+      case "Pending":
+        return "yellow";
+      default:
+        return "gray";
+    }
+  };
+
   const userColumn = [
     {
       header: "User",
@@ -260,6 +287,24 @@ export const ReservationList: React.FC = () => {
           <Filter onClick={() => onSort("full_name")} />
         </div>
       ),
+    },
+  ];
+
+  const statusColumn = [
+    {
+      header: "Status",
+      accessor: (reservation: Reservation) => (
+        <div className={`w-fit`}>
+          <Badge
+            size="lg"
+            variant="light"
+            color={getStatusColor(reservation.status)}
+          >
+            {reservation.status}
+          </Badge>
+        </div>
+      ),
+      action: <Filter onClick={() => onSort("status")} />,
     },
   ];
 
@@ -308,11 +353,24 @@ export const ReservationList: React.FC = () => {
           ? formatTime(item.schedules[0].end_time)
           : "-",
     },
+    ...(type !== "Admin" ? statusColumn : []),
   ];
 
   return (
     <>
       <MantineProvider>
+        {type !== "Admin" && (
+          <Button
+            variant="filled"
+            color="#073066"
+            className="transition-all duration-300 hover:shadow-blue-300/40 hover:bg-(--primary-hover) mb-4"
+            leftSection={<IoMdAdd size={18} />}
+            onClick={() => go({ to: "create" })}
+          >
+            Add Reservation
+          </Button>
+        )}
+
         <DataTable
           data={reservations}
           gridColumns={gridColumns}
@@ -361,9 +419,9 @@ export const ReservationList: React.FC = () => {
                   <LuPencilLine />
                 </ActionIcon>
                 <ActionIcon
-                  title="Close Reservation"
+                  title="Cancel Reservation"
                   color="red"
-                  onClick={() => handleDeletion(reservation?.id ?? "")}
+                  onClick={() => handleCancellation(reservation?.id ?? "")}
                 >
                   <FiSlash />
                 </ActionIcon>

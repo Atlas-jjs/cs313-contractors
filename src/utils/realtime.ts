@@ -1,12 +1,15 @@
 import supabase from "../config/supabaseClient";
 
 export const reservationChannel = supabase
-  .channel("reservation_changes")
+  .channel("reservation_updates")
   .on(
     "postgres_changes",
     { event: "*", schema: "public", table: "reservation" },
     (payload) => {
       console.log(payload);
+      window.dispatchEvent(
+        new CustomEvent("reservation-updated", { detail: payload })
+      );
     }
   )
   .subscribe();

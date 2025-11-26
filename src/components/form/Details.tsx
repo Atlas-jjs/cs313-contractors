@@ -133,7 +133,7 @@ const Details = ({
         : "",
     remarks:
       showErrors && !formData.remarks
-        ? "Please enter the purpose of this reservation"
+        ? "Please provide a short title describing this reservation."
         : "",
   };
 
@@ -143,9 +143,10 @@ const Details = ({
         <div className="flex gap-4 w-full">
           <div className="flex-1">
             <MultiSelect
+              description="Select one or more rooms."
               type="multiple"
               label="Room"
-              placeholder="Select Room"
+              placeholder="Tril"
               data={result.data.map((r) => r.name)}
               value={formData.room?.map((id) => id.toString())}
               onChange={(val) => setFormData({ ...formData, room: val })}
@@ -155,7 +156,8 @@ const Details = ({
           <div className="flex-1">
             <Select
               label="Purpose"
-              placeholder="Select Purpose"
+              description="Select the main purpose"
+              placeholder="IT Project-Related"
               // data={purposeOptions}
               data={[
                 "IT Project-Related",
@@ -183,7 +185,8 @@ const Details = ({
 
         <div className="w-full">
           <DatePickerInput
-            placeholder="Select Date"
+            description="Select one or more dates."
+            placeholder="November 21, 2025, December 2, 2025"
             type="multiple"
             leftSection={<TbCalendar size={18} />}
             leftSectionPointerEvents="none"
@@ -240,9 +243,9 @@ const Details = ({
           <div className="w-full">
             <Select
               label="Advisor"
-              placeholder="Select Advisor"
+              placeholder="Josephine Dela Cruz"
               data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
-              description="If applicable, enter the supervising advisor/faculty"
+              description="Enter the supervising advisor/faculty"
               value={formData.advisor}
               onChange={(val) =>
                 setFormData({ ...formData, advisor: val ?? "" })
@@ -255,9 +258,10 @@ const Details = ({
         <div className="w-full">
           <TextInput
             label="Remarks"
-            description="Class Code or specific research."
+            description="Enter the class code or research purpose. (Max 30 characters)"
             placeholder="CS 311, Thesis, Capstone"
             value={formData.remarks}
+            max={30}
             onChange={(val) =>
               setFormData({
                 ...formData,

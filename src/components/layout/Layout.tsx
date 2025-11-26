@@ -5,7 +5,7 @@ import { UserInfo } from "../UserInfo";
 import { MenuContext } from "./MenuContext";
 
 export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
-  const [sidebarState, setSidebarState] = useState(false);
+  const [sidebarState, setSidebarState] = useState(true);
 
   return (
     <>

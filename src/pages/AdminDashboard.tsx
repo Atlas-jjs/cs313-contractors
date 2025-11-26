@@ -21,24 +21,6 @@ import {
   Legend,
 } from "chart.js";
 export const AdminDashboard = () => {
-  // useEffect(() => {
-  //   const channel = supabase
-  //     .channel("admin_db_changes")
-  //     .on(
-  //       "postgres_changes",
-  //       { event: "*", schema: "public", table: "reservation" },
-  //       (payload) => {
-  //         console.log(payload);
-  //         // fetchAllData();
-  //       }
-  //     )
-  //     .subscribe();
-
-  //   return () => {
-  //     supabase.removeChannel(channel);
-  //   };
-  // }, []);
-
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -50,6 +32,7 @@ export const AdminDashboard = () => {
 
   const gridColumns = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr]";
 
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [records, setRecords] = useState<Reservation[]>();
   const [pendingRoomUsage, setPendingRoomUsage] = useState<RoomUsage[]>();
   const [activeRoomUsage, setActiveRoomUsage] = useState<RoomUsage[]>();
@@ -104,11 +87,88 @@ export const AdminDashboard = () => {
     },
   });
 
+  // Fetch all the data from the all_reservation table
+  const {
+    result,
+    tableQuery: { isLoading: adminReservationIsLoading, refetch },
+  } = useTable<Reservation>({
+    resource: "all_reservation",
+    pagination: { currentPage: 1, pageSize: 6 },
+    sorters: { initial: [{ field: "id", order: "asc" }] },
+    filters: {
+      permanent: [
+        {
+          field: "status",
+          operator: "contains",
+          value: "Pending",
+        },
+      ],
+      initial: [
+        {
+          field: "reservation_code",
+          operator: "contains",
+          value: "",
+        },
+      ],
+    },
+    queryOptions: {
+      enabled: true,
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 1000 * 60,
+    },
+  });
+
   useEffect(() => {
     if (monthReservation) setRecords(monthReservation.data);
   }, [monthReservation]);
 
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  // Realtime Update
+  useEffect(() => {
+    async function fetchAllData() {
+      const [
+        { data: pendingData },
+        { data: activeData },
+        { data: totalData },
+        { data: userData },
+        { data: purposeData },
+        { data: totalPendingData },
+        { data: totalActiveData },
+      ] = await Promise.all([
+        supabase.rpc("admin_get_room_usage", { p_status: "Pending" }),
+        supabase.rpc("admin_get_room_usage", { p_status: "Approved" }),
+        supabase.rpc("admin_get_all_room_usage"),
+        supabase.rpc("admin_get_user_counts"),
+        supabase.rpc("admin_get_room_usage_per_purpose"),
+        supabase.rpc("admin_get_total_reservation_by_month", {
+          p_status: "Pending",
+        }),
+        supabase.rpc("admin_get_total_reservation_by_month", {
+          p_status: "Approved",
+        }),
+      ]);
+
+      // Update ALL state at once
+      setPendingRoomUsage(pendingData || []);
+      setActiveRoomUsage(activeData || []);
+      setTotalRoomUsage(totalData || []);
+      setUserCount(userData || []);
+      setUsageByPurpose(purposeData || []);
+      setTotalPending(totalPendingData || []);
+      setTotalActive(totalActiveData || []);
+    }
+
+    function onUpdate() {
+      refetch();
+      fetchAllData();
+    }
+
+    console.log("Updating");
+
+    window.addEventListener("reservation-updated", onUpdate);
+    fetchAllData();
+    return () => window.removeEventListener("reservation-updated", onUpdate);
+  }, [refetch]);
 
   useEffect(() => {
     async function fetchAllData() {
@@ -148,38 +208,6 @@ export const AdminDashboard = () => {
     fetchAllData();
     setIsLoadingData(false);
   }, []);
-
-  // Fetch all the data from the all_reservation table
-  const {
-    result,
-    tableQuery: { isLoading: adminReservationIsLoading },
-  } = useTable<Reservation>({
-    resource: "all_reservation",
-    pagination: { currentPage: 1, pageSize: 6 },
-    sorters: { initial: [{ field: "id", order: "asc" }] },
-    filters: {
-      permanent: [
-        {
-          field: "status",
-          operator: "contains",
-          value: "Pending",
-        },
-      ],
-      initial: [
-        {
-          field: "reservation_code",
-          operator: "contains",
-          value: "",
-        },
-      ],
-    },
-    queryOptions: {
-      enabled: true,
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 1000 * 60,
-    },
-  });
 
   useEffect(() => {
     if (

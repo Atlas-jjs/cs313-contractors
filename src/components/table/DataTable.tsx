@@ -136,7 +136,7 @@ export function DataTable<T extends { id: string | number }>({
               {data.map((item, index) => (
                 <div
                   key={index}
-                  className="border rounded-lg p-4 shadow-sm flex flex-col gap-2 bg-white"
+                  className="border rounded-lg p-4 shadow-md flex flex-col gap-2 bg-white"
                 >
                   {columns.map((col, i) => {
                     const value =

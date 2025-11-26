@@ -128,7 +128,7 @@ export const ReservationShow = () => {
     }
   };
 
-  const handleDeletion = async (id: string) => {
+  const handleCancellation = async (id: string) => {
     try {
       await mutateAsync(
         {
@@ -181,7 +181,7 @@ export const ReservationShow = () => {
   return (
     <MantineProvider>
       <div className="w-full h-full flex flex-col gap-6">
-        <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200 shadow-md">
           <div>
             <Group>
               <Title order={2} className="text-(--primary)">
@@ -233,9 +233,9 @@ export const ReservationShow = () => {
                 <LuPencilLine />
               </ActionIcon>
               <ActionIcon
-                title="Close Reservation"
+                title="Cancel Reservation"
                 color="red"
-                onClick={() => handleDeletion(reservation?.id ?? "")}
+                onClick={() => handleCancellation(reservation?.id ?? "")}
               >
                 <FiSlash />
               </ActionIcon>

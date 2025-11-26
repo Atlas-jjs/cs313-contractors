@@ -82,7 +82,7 @@ export const HistoryShow = () => {
   return (
     <MantineProvider>
       <div className="w-full h-full flex flex-col gap-6">
-        <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200 shadow-md">
           <div>
             <Group>
               <Title order={2} className="text-(--primary)">
