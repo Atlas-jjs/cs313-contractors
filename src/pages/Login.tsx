@@ -7,7 +7,7 @@ export const Login = () => {
 
   return (
     <div className="w-full h-dvh bg-[#D1E2EB] flex flex-col justify-center items-center px-4">
-      <div className="bg-[#EFEFEF] p-10 rounded-lg flex flex-col gap-6 sm:gap-8 w-full max-w-md">
+      <div className="bg-[#EFEFEF] p-10 rounded-lg flex flex-col gap-6 sm:gap-8 w-full max-w-md  shadow-xl">
         <img
           src={Header}
           alt="Saint Louis University"
@@ -26,19 +26,18 @@ export const Login = () => {
             <img src={googleLogo} alt="Google Logo" className="w-5 h-auto" />
             Sign in with Google
           </button>
+          {/* <p className="text-xs sm:text-sm flex gap-1 items-center justify-center text-(--dark-secondary) w-full">
+            Only emails ending with @slu.edu.ph are allowed
+          </p> */}
           <p className="text-center text-xs sm:text-sm flex flex-col gap-1 items-center justify-center text-(--dark-secondary) w-full">
-            <span className="mb-4">
-              We are currently in the testing phase. To access the student
-              portal, please use your SLU email. To access the administrator
-              portal, you may use any email address.
+            <span className="mb-2 block text-gray-700">
+              We’re currently in a testing phase. Only emails ending with{" "}
+              <strong>@slu.edu.ph</strong> can sign up.
             </span>
             <span>
               Your participation is appreciated as we refine the system.
             </span>
           </p>
-          {/* <p className="text-xs sm:text-sm flex gap-1 items-center justify-center text-(--dark-secondary) w-full">
-            Only emails ending with @slu.edu.ph are allowed
-          </p> */}
         </div>
       </div>
     </div>
