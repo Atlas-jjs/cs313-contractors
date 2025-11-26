@@ -26,9 +26,19 @@ export const Login = () => {
             <img src={googleLogo} alt="Google Logo" className="w-5 h-auto" />
             Sign in with Google
           </button>
-          <p className="text-xs sm:text-sm flex gap-1 items-center justify-center text-(--dark-secondary) w-full">
-            Only emails ending with @slu.edu.ph are allowed
+          <p className="text-center text-xs sm:text-sm flex flex-col gap-1 items-center justify-center text-(--dark-secondary) w-full">
+            <span className="mb-4">
+              We are currently in the testing phase. To access the student
+              portal, please use your SLU email. To access the administrator
+              portal, you may use any email address.
+            </span>
+            <span>
+              Your participation is appreciated as we refine the system.
+            </span>
           </p>
+          {/* <p className="text-xs sm:text-sm flex gap-1 items-center justify-center text-(--dark-secondary) w-full">
+            Only emails ending with @slu.edu.ph are allowed
+          </p> */}
         </div>
       </div>
     </div>

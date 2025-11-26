@@ -11,7 +11,7 @@ export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
     <>
       <MenuContext value={{ sidebarState, setSidebarState }}>
         <div className="flex gap-6 w-full min-h-dvh h-auto bg-[#EEEEEE]">
-          <div className="fixed">
+          <div className="fixed z-9999">
             <Menu />
           </div>
           <div

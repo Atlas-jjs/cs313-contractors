@@ -163,8 +163,6 @@ export const AdminDashboard = () => {
       fetchAllData();
     }
 
-    console.log("Updating");
-
     window.addEventListener("reservation-updated", onUpdate);
     fetchAllData();
     return () => window.removeEventListener("reservation-updated", onUpdate);

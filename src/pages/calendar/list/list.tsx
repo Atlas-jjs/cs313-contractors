@@ -89,6 +89,7 @@ export const CalendarList = () => {
 
   useEffect(() => {
     if (!selectedRoom) return;
+
     async function fetchSchedules() {
       setLoadingEvents(true);
 
@@ -112,6 +113,11 @@ export const CalendarList = () => {
     }
 
     fetchSchedules();
+
+    window.addEventListener("reservation-updated", fetchSchedules);
+    fetchSchedules();
+    return () =>
+      window.removeEventListener("reservation-updated", fetchSchedules);
   }, [selectedRoom, startWeek]);
 
   if (roomsIsLoading || loadingEvents || !selectedRoom) {

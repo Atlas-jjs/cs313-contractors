@@ -54,12 +54,14 @@ export const ReservationShow = () => {
   });
   const { query: rooms } = useList<Room>({ resource: "room" });
 
+  useEffect(() => {});
+
   useEffect(() => {
     if (reservationData) setReservation(reservationData.data);
   }, [reservationData]);
 
   useEffect(() => {
-    if (userData) setType(userData.data);
+    if (userData) setType(userData.type);
   }, [userData]);
 
   const parsedRooms =
@@ -199,7 +201,7 @@ export const ReservationShow = () => {
               Code: {reservation?.reservation_code}
             </Text>
           </div>
-          {type === "Admin" ? (
+          {type === "Admin" && reservation?.status === "Pending" ? (
             <div className="flex gap-2">
               <ActionIcon
                 title="Approve Reservation"
@@ -220,7 +222,8 @@ export const ReservationShow = () => {
                 <FaXmark />
               </ActionIcon>
             </div>
-          ) : reservation?.status === "Pending" ? (
+          ) : null}
+          {type !== "Admin" && reservation?.status === "Pending" ? (
             <div className="flex gap-2">
               <ActionIcon
                 title="Edit Reservation"
@@ -241,7 +244,8 @@ export const ReservationShow = () => {
               </ActionIcon>
             </div>
           ) : reservation?.status !== "Cancelled" &&
-            reservation?.status !== "Denied" ? (
+            reservation?.status !== "Denied" &&
+            type !== "Admin" ? (
             <div className="flex gap-2">
               <ActionIcon
                 title="Edit Reservation"

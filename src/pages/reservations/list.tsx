@@ -154,8 +154,6 @@ export const ReservationList: React.FC = () => {
 
       const result = JSON.parse(data);
 
-      console.log(result);
-
       if (result.status !== "success" || error) {
         notifyError({
           title: "Failed to Approve Reservation",
