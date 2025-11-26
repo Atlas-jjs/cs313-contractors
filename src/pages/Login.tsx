@@ -20,7 +20,7 @@ export const Login = () => {
             onClick={() => {
               login({});
             }}
-            className="flex items-center gap-4 justify-center border-(--primary) border cursor-pointer rounded-lg p-3 transition duration-200 hover:bg-(--primary)] text-(--primary) hover:text-white"
+            className="flex items-center gap-4 justify-center border-(--primary) border cursor-pointer rounded-lg p-3 transition duration-200 hover:bg-(--primary) text-(--primary) hover:text-white"
             // className="flex items-center gap-4 justify-center border-(--primary)] border cursor-pointer rounded-[8px] p-3 transition duration-200 hover:bg-[rgba(7,48,102,0.1)] text-(--primary)]"
           >
             <img src={googleLogo} alt="Google Logo" className="w-5 h-auto" />
