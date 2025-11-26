@@ -221,9 +221,15 @@ export const ReservationEdit = () => {
                   "Josephine Dela Cruz",
                   "Dalos Miguel",
                   "Ramel Cabanilla",
+                  "Roderick Makil",
+                  "Maria Concepcion Clemente",
+                  "Kasima Mendoza",
+                  "Randy Domantay",
+                  "Romulos Amistad",
                 ]}
-                value={advisor}
-                onChange={(value) => setAdvisor(value ?? advisor)}
+                value={advisor ?? "Not Applicable"}
+                onChange={(value) => setAdvisor(value ?? "Not Applicable")}
+                clearable
               />
               <TextInput
                 label="Remarks"

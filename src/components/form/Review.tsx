@@ -60,7 +60,21 @@ const Review = ({ steps, details, resources, onAgreeChange }: ReviewProps) => {
           <div className="flex-1">
             <Select
               label="Purpose"
-              data={["IT Project-Related", "Research-Related"]}
+              data={[
+                "IT Project-Related",
+                "Research-Related",
+                "Academic Requirement",
+                "Thesis / Capstone",
+                "Event / Activity",
+                "Training / Workshop",
+                "Maintenance Work",
+                "Administrative Task",
+                "Meeting / Consultation",
+                "System Testing",
+                "Department Request",
+                "Facility Use",
+                "Other",
+              ]}
               placeholder="Select Purpose"
               value={detail.purpose}
               readOnly
@@ -102,19 +116,6 @@ const Review = ({ steps, details, resources, onAgreeChange }: ReviewProps) => {
           </div>
         </div>
 
-        {/* Advisor */}
-        {userData.type !== "Instructor" && (
-          <div className="w-full">
-            <Select
-              label="Advisor"
-              placeholder="Select Advisor"
-              data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
-              value={detail.advisor}
-              readOnly
-            />
-          </div>
-        )}
-
         {/* Remarks */}
         <div className="w-full">
           <TextInput
@@ -124,6 +125,28 @@ const Review = ({ steps, details, resources, onAgreeChange }: ReviewProps) => {
             disabled={!detail.remarks?.length ? true : false}
           />
         </div>
+
+        {/* Advisor */}
+        {userData.type !== "Instructor" && (
+          <div className="w-full">
+            <Select
+              label="Advisor"
+              data={[
+                "Josephine Dela Cruz",
+                "Dalos Miguel",
+                "Ramel Cabanilla",
+                "Roderick Makil",
+                "Maria Concepcion Clemente",
+                "Kasima Mendoza",
+                "Randy Domantay",
+                "Romulos Amistad",
+              ]}
+              value={detail.advisor ?? "Not Applicable"}
+              readOnly
+              disabled={!detail.advisor}
+            />
+          </div>
+        )}
 
         {/* Participants */}
         <div className="w-full flex flex-col gap-4">

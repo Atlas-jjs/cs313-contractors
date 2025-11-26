@@ -127,7 +127,7 @@ export const HistoryShow = () => {
               />
               <TextInput
                 label="Advisor"
-                value={record?.advisor || "N/A"}
+                value={record?.advisor || "Not Applicable"}
                 readOnly
                 variant="filled"
               />

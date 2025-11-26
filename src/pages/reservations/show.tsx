@@ -286,7 +286,7 @@ export const ReservationShow = () => {
               />
               <TextInput
                 label="Advisor"
-                value={reservation?.advisor || "N/A"}
+                value={reservation?.advisor || "Not Applicable"}
                 readOnly
                 variant="filled"
               />

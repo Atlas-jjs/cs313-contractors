@@ -239,22 +239,6 @@ const Details = ({
           </div>
         </div>
 
-        {userData?.type !== "Instructor" && (
-          <div className="w-full">
-            <Select
-              label="Advisor"
-              placeholder="Josephine Dela Cruz"
-              data={["Josephine Dela Cruz", "Dalos Miguel", "Ramel Cabanilla"]}
-              description="Enter the supervising advisor/faculty"
-              value={formData.advisor}
-              onChange={(val) =>
-                setFormData({ ...formData, advisor: val ?? "" })
-              }
-              error={errors.advisor}
-            />
-          </div>
-        )}
-
         <div className="w-full">
           <TextInput
             label="Remarks"
@@ -271,6 +255,32 @@ const Details = ({
             error={errors.remarks}
           />
         </div>
+
+        {userData?.type !== "Instructor" && (
+          <div className="w-full">
+            <Select
+              label="Advisor"
+              placeholder="Josephine Dela Cruz"
+              data={[
+                "Josephine Dela Cruz",
+                "Dalos Miguel",
+                "Ramel Cabanilla",
+                "Roderick Makil",
+                "Maria Concepcion Clemente",
+                "Kasima Mendoza",
+                "Randy Domantay",
+                "Romulos Amistad",
+              ]}
+              description="If applicable, enter the supervising advisor/faculty"
+              value={formData.advisor}
+              onChange={(val) =>
+                setFormData({ ...formData, advisor: val ?? "" })
+              }
+              clearable
+              // error={errors.advisor}
+            />
+          </div>
+        )}
       </div>
     </MantineProvider>
   );
