@@ -40,13 +40,13 @@ export const UserList: React.FC = () => {
     pagination: { currentPage: 1, pageSize: 10 },
     sorters: { initial: [{ field: "id", order: "asc" }] },
     filters: {
-      permanent: [
-        {
-          field: "type",
-          operator: "ne",
-          value: "Admin",
-        },
-      ],
+      // permanent: [
+      //   {
+      //     field: "type",
+      //     operator: "ne",
+      //     value: "Admin",
+      //   },
+      // ],
       initial: [
         {
           field: "full_name",
