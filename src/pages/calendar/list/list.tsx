@@ -139,9 +139,9 @@ export const CalendarList = () => {
           <div className="relative">
             <button
               onClick={() => setDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-2 px-3 py-2 bg-white"
+              className="flex items-center gap-2 px-4 py-2 bg-(--primary) ml-4 hover:bg-(--primary-hover) rounded-md text-white shadow-md cursor-pointer transition-all duration-200"
             >
-              <span className="font-bold text-lg">
+              <span className="font-medium text-md">
                 {format(startWeek, "MMMM d, yyyy")} -{" "}
                 {format(addDays(startWeek, 6), "MMMM d, yyyy")}
               </span>

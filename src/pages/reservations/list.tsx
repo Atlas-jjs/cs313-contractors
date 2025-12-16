@@ -361,7 +361,7 @@ export const ReservationList: React.FC = () => {
           <Button
             variant="filled"
             color="#073066"
-            className="transition-all duration-300 hover:shadow-blue-300/40 hover:bg-(--primary-hover) mb-4"
+            className="transition-all duration-200 hover:shadow-blue-300/40 hover:bg-(--primary-hover) mb-4"
             leftSection={<IoMdAdd size={18} />}
             onClick={() => go({ to: "create" })}
           >

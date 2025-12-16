@@ -24,7 +24,7 @@ export const Menu = () => {
     if (isLoading) return;
 
     if (!data.user?.id) {
-      console.log("No user found, redirecting...");
+      console.error("No user found, redirecting...");
       return;
     }
 

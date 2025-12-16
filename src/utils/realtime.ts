@@ -6,7 +6,6 @@ export const reservationChannel = supabase
     "postgres_changes",
     { event: "*", schema: "public", table: "reservation" },
     (payload) => {
-      console.log(payload);
       window.dispatchEvent(
         new CustomEvent("reservation-updated", { detail: payload })
       );

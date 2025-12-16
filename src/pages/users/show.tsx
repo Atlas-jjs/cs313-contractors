@@ -14,7 +14,6 @@ import {
   Title,
 } from "@mantine/core";
 import { FaUserCheck, FaUserSlash } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
 import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 
 export const UserShow = () => {
@@ -72,11 +71,6 @@ export const UserShow = () => {
     }
   };
 
-  // ! Finalize
-  const handlerUserDeletion = (userId: string) => {
-    console.log(userId);
-  };
-
   const getStatusColor = (status: boolean) => (status ? "red" : "green");
 
   return (
@@ -128,7 +122,7 @@ export const UserShow = () => {
                 <FaUserSlash />
               </ActionIcon>
             )}
-            <ActionIcon
+            {/* <ActionIcon
               title="Delete user"
               color="red"
               onClick={() => {
@@ -136,7 +130,7 @@ export const UserShow = () => {
               }}
             >
               <MdDelete />
-            </ActionIcon>
+            </ActionIcon> */}
           </div>
         </div>
 

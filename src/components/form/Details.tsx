@@ -137,6 +137,11 @@ const Details = ({
         : "",
   };
 
+  const dynamicPlaceholder = (
+    field: keyof typeof errors,
+    defaultText: string
+  ) => (errors[field] ? "" : defaultText);
+
   return (
     <MantineProvider>
       <div className="flex flex-col gap-5 justify-center items-center">
@@ -146,7 +151,7 @@ const Details = ({
               description="Select one or more rooms."
               type="multiple"
               label="Room"
-              placeholder="Tril"
+              placeholder={dynamicPlaceholder("room", "Tril")}
               data={result.data.map((r) => r.name)}
               value={formData.room?.map((id) => id.toString())}
               onChange={(val) => setFormData({ ...formData, room: val })}
@@ -157,7 +162,7 @@ const Details = ({
             <Select
               label="Purpose"
               description="Select the main purpose"
-              placeholder="IT Project-Related"
+              placeholder={dynamicPlaceholder("purpose", "IT Project-Related")}
               // data={purposeOptions}
               data={[
                 "IT Project-Related",
@@ -186,7 +191,10 @@ const Details = ({
         <div className="w-full">
           <DatePickerInput
             description="Select one or more dates."
-            placeholder="November 21, 2025, December 2, 2025"
+            placeholder={dynamicPlaceholder(
+              "date",
+              "November 21, 2025, December 2, 2025"
+            )}
             type="multiple"
             leftSection={<TbCalendar size={18} />}
             leftSectionPointerEvents="none"
@@ -243,7 +251,10 @@ const Details = ({
           <TextInput
             label="Remarks"
             description="Enter the class code or research purpose. (Max 30 characters)"
-            placeholder="CS 311, Thesis, Capstone"
+            placeholder={dynamicPlaceholder(
+              "remarks",
+              "CS 311, Thesis, Capstone"
+            )}
             value={formData.remarks}
             max={30}
             onChange={(val) =>

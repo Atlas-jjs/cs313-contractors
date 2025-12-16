@@ -67,7 +67,7 @@ export const ReservationCreate = () => {
       const roomIds = matchedRooms.map((room) => room.id);
 
       // Call the SQL function directly
-      const { error } = await supabase.rpc("create_reservation", {
+      const { data, error } = await supabase.rpc("create_reservation", {
         p_user_id: userId,
         p_purpose: detailsData.purpose,
         p_room_ids: roomIds,
@@ -85,7 +85,7 @@ export const ReservationCreate = () => {
       if (!error) {
         notifySuccess({
           title: "Reservation Created",
-          message: "Your reservation has been successfully submitted.",
+          message: data?.message,
         });
 
         go({
@@ -96,7 +96,7 @@ export const ReservationCreate = () => {
 
       notifyError({
         title: "Unable to Create Reservation",
-        message: error?.message, // ! Change
+        message: error?.message,
       });
       return;
     } catch (error) {

@@ -61,15 +61,21 @@ const Resources = ({ onDetailsChange, initialData }: ResourcesProps) => {
   return (
     <MantineProvider>
       <div className="flex flex-col gap-4">
-        <div className="flex items-center  gap-2">
-          <h2 className="leading-5">Participants</h2>
-          <button
-            className="text-(--primary) cursor-pointer flex items-center gap-2 rounded-full hover:text-(--primary-hover) duration-200"
-            onClick={addFields}
-            type="button"
-          >
-            <FaPlusSquare size={28} />
-          </button>
+        <div className="flex flex-col">
+          <div className="flex gap-2 items-center">
+            <h2 className="leading-5">Participants</h2>
+
+            <button
+              className="text-(--primary) cursor-pointer flex items-center gap-2 rounded-full hover:text-(--primary-hover) duration-200"
+              onClick={addFields}
+              type="button"
+            >
+              <FaPlusSquare size={28} />
+            </button>
+          </div>
+          <p className="text-xs text-[rgb(134,142,150)]">
+            Entering your name as the reserver is not required.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3">

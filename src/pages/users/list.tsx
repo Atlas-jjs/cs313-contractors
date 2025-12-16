@@ -14,7 +14,6 @@ import { DataTable } from "../../components/table/DataTable";
 import type { User } from "../pageUtils/types/index";
 import { Search } from "../../components/Search";
 import { Filter } from "../../components/Filter";
-import { MdDelete } from "react-icons/md";
 import { FaUserCheck, FaUserSlash } from "react-icons/fa";
 import { notifyError, notifySuccess } from "../pageUtils/notifcations";
 
@@ -220,11 +219,6 @@ export const UserList: React.FC = () => {
     }
   };
 
-  // ! Finalize
-  const handlerUserDeletion = (userId: string) => {
-    console.log(userId);
-  };
-
   return (
     <>
       <MantineProvider>
@@ -262,7 +256,7 @@ export const UserList: React.FC = () => {
                     <FaUserSlash />
                   </ActionIcon>
                 )}
-                <ActionIcon
+                {/* <ActionIcon
                   title="Delete user"
                   color="red"
                   onClick={() => {
@@ -270,7 +264,7 @@ export const UserList: React.FC = () => {
                   }}
                 >
                   <MdDelete />
-                </ActionIcon>
+                </ActionIcon> */}
               </div>
             )}
             emptyMessage="We couldn’t find any users at the moment."
