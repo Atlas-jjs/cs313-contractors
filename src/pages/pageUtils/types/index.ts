@@ -58,3 +58,9 @@ export interface UsageByPurpose {
   purpose: string;
   total_usage: number;
 }
+
+export interface HoursPerRoom {
+  period_start: string;
+  room_id: number;
+  total_hours_used: number;
+}

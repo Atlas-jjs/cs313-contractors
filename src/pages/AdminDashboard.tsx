@@ -20,6 +20,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { RoomUsageChart } from "../components/RoomUsageChart";
 export const AdminDashboard = () => {
   ChartJS.register(
     CategoryScale,
@@ -123,9 +124,13 @@ export const AdminDashboard = () => {
     if (monthReservation) setRecords(monthReservation.data);
   }, [monthReservation]);
 
-  // Realtime Update
+  // Fetching of data + Realtime update
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchAllData() {
+      if (isMounted) setIsLoadingData(true);
+
       const [
         { data: pendingData },
         { data: activeData },
@@ -148,14 +153,16 @@ export const AdminDashboard = () => {
         }),
       ]);
 
-      // Update ALL state at once
-      setPendingRoomUsage(pendingData || []);
-      setActiveRoomUsage(activeData || []);
-      setTotalRoomUsage(totalData || []);
-      setUserCount(userData || []);
-      setUsageByPurpose(purposeData || []);
-      setTotalPending(totalPendingData || []);
-      setTotalActive(totalActiveData || []);
+      if (isMounted) {
+        setPendingRoomUsage(pendingData || []);
+        setActiveRoomUsage(activeData || []);
+        setTotalRoomUsage(totalData || []);
+        setUserCount(userData || []);
+        setUsageByPurpose(purposeData || []);
+        setTotalPending(totalPendingData || 0);
+        setTotalActive(totalActiveData || 0);
+        setIsLoadingData(false);
+      }
     }
 
     function onUpdate() {
@@ -165,47 +172,12 @@ export const AdminDashboard = () => {
 
     window.addEventListener("reservation-updated", onUpdate);
     fetchAllData();
-    return () => window.removeEventListener("reservation-updated", onUpdate);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("reservation-updated", onUpdate);
+    };
   }, [refetch]);
-
-  useEffect(() => {
-    async function fetchAllData() {
-      setIsLoadingData(true);
-      const [
-        { data: pendingData },
-        { data: activeData },
-        { data: totalData },
-        { data: userData },
-        { data: purposeData },
-        { data: totalPendingData },
-        { data: totalActiveData },
-      ] = await Promise.all([
-        supabase.rpc("admin_get_room_usage", { p_status: "Pending" }),
-        supabase.rpc("admin_get_room_usage", { p_status: "Approved" }),
-        supabase.rpc("admin_get_all_room_usage"),
-        supabase.rpc("admin_get_user_counts"),
-        supabase.rpc("admin_get_room_usage_per_purpose"),
-        supabase.rpc("admin_get_total_reservation_by_month", {
-          p_status: "Pending",
-        }),
-        supabase.rpc("admin_get_total_reservation_by_month", {
-          p_status: "Approved",
-        }),
-      ]);
-
-      // Update ALL state at once
-      setPendingRoomUsage(pendingData || []);
-      setActiveRoomUsage(activeData || []);
-      setTotalRoomUsage(totalData || []);
-      setUserCount(userData || []);
-      setUsageByPurpose(purposeData || []);
-      setTotalPending(totalPendingData || []);
-      setTotalActive(totalActiveData || []);
-    }
-
-    fetchAllData();
-    setIsLoadingData(false);
-  }, []);
 
   useEffect(() => {
     if (
@@ -308,148 +280,153 @@ export const AdminDashboard = () => {
       reservations &&
       userCount &&
       usageByPurpose ? (
-        <div className="grid grid-cols-1 xl:grid-cols-[3fr_1fr] gap-4 w-full h-full">
-          {/* First Column - Reservations */}
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              <div className="w-full">
-                <ReservationCard
-                  header="Pending Reservations"
-                  totalValue={totalPending}
-                  roomsUsage={pendingRoomUsage}
-                  type="pending"
-                />
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 xl:grid-cols-[3fr_1fr] gap-4 w-full h-full">
+            {/* First Column - Reservations */}
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="w-full">
+                  <ReservationCard
+                    header="Pending Reservations"
+                    totalValue={totalPending}
+                    roomsUsage={pendingRoomUsage}
+                    type="pending"
+                  />
+                </div>
+                <div className="w-full">
+                  <ReservationCard
+                    header="Active Reservations"
+                    totalValue={totalActive}
+                    roomsUsage={activeRoomUsage}
+                    type="active"
+                  />
+                </div>
+                <div className="w-full">
+                  <ReservationCard
+                    header="Total Reservations"
+                    totalValue={totalRecords.total}
+                    roomsUsage={totalRoomUsage}
+                    type="total"
+                  />
+                </div>
               </div>
-              <div className="w-full">
-                <ReservationCard
-                  header="Active Reservations"
-                  totalValue={totalActive}
-                  roomsUsage={activeRoomUsage}
-                  type="active"
-                />
-              </div>
-              <div className="w-full">
-                <ReservationCard
-                  header="Total Reservations"
-                  totalValue={totalRecords.total}
-                  roomsUsage={totalRoomUsage}
-                  type="total"
-                />
-              </div>
-            </div>
-            <div className="border-gray-200 border flex flex-col bg-white rounded-xl h-full">
-              <div className="flex justify-between items-center p-4">
-                <span className="text-2xl text-(--primary) font-bold">
-                  Reservation
-                </span>
-                <button
-                  className="text-white text-medium bg-(--primary) cursor-pointer p-2 px-4 rounded hover:bg-(--primary-hover) transition-colors duration-200"
-                  onClick={() =>
-                    go({
-                      to: `/reservation`,
-                    })
-                  }
-                >
-                  View Reservations
-                </button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left min-w-[600px]">
-                  <thead className="border-b border-gray-200 ">
-                    <tr className={`grid ${gridColumns} items-center p-4 `}>
-                      {columns.map((col, index) => (
-                        <th
-                          key={index}
-                          className="font-bold flex gap-2 items-center"
-                        >
-                          {col.header}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
+              <div className="border-gray-200 border flex flex-col bg-white rounded-xl h-full">
+                <div className="flex justify-between items-center p-4">
+                  <span className="text-2xl text-(--primary) font-bold">
+                    Reservation
+                  </span>
+                  <button
+                    className="text-white text-medium bg-(--primary) cursor-pointer p-2 px-4 rounded hover:bg-(--primary-hover) transition-colors duration-200"
+                    onClick={() =>
+                      go({
+                        to: `/reservation`,
+                      })
+                    }
+                  >
+                    View Reservations
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left min-w-[600px]">
+                    <thead className="border-b border-gray-200 ">
+                      <tr className={`grid ${gridColumns} items-center p-4 `}>
+                        {columns.map((col, index) => (
+                          <th
+                            key={index}
+                            className="font-bold flex gap-2 items-center"
+                          >
+                            {col.header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
 
-                  <tbody>
-                    {reservations.length === 0 ? (
-                      <NoResults
-                        subheading={
-                          "We couldn’t find any reservation at the moment."
-                        }
-                      />
-                    ) : (
-                      reservations.map((item, index) => (
-                        <tr
-                          key={index}
-                          className={`grid px-4 items-center border-gray-200
+                    <tbody>
+                      {reservations.length === 0 ? (
+                        <NoResults
+                          subheading={
+                            "We couldn’t find any reservation at the moment."
+                          }
+                        />
+                      ) : (
+                        reservations.map((item, index) => (
+                          <tr
+                            key={index}
+                            className={`grid px-4 items-center border-gray-200
                     ${gridColumns} ${
-                            index !== reservations.length - 1 && "border-b "
-                          }`}
-                        >
-                          {columns.map((col, i) => {
-                            const value =
-                              typeof col.accessor === "function"
-                                ? col.accessor(item)
-                                : (item[col.accessor] as React.ReactNode);
-                            return (
-                              <td key={i} className="py-4">
-                                {value}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                              index !== reservations.length - 1 && "border-b "
+                            }`}
+                          >
+                            {columns.map((col, i) => {
+                              const value =
+                                typeof col.accessor === "function"
+                                  ? col.accessor(item)
+                                  : (item[col.accessor] as React.ReactNode);
+                              return (
+                                <td key={i} className="py-4">
+                                  {value}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-          {/* 2nd Column - User Type & Room Utilization Purpose*/}
-          <div className="flex flex-col gap-4 h-full">
-            <div className="bg-white p-4 py-8 border-gray-200 border rounded-xl w-full h-max text-center">
-              <h2 className="text-2xl font-bold text-(--dark-primary) mb-2">
-                Total Users
-              </h2>
-              <Pie
-                data={{
-                  labels: chartUserCount.map((u) => u.user_type),
-                  datasets: [
-                    {
-                      data: chartUserCount.map((u) => u.total),
-                      backgroundColor: ["#F6C501", "#0070CC", "#073066"],
-                    },
-                  ],
-                }}
-                options={{ animation: { duration: 1000 } }}
-              />
-            </div>
-            <div className="bg-white p-4 border-gray-200 border rounded-xl w-full text-center h-full grid place-items-center">
-              <div>
+            {/* 2nd Column - User Type & Room Utilization Purpose*/}
+            <div className="flex flex-col gap-4 h-full">
+              <div className="bg-white p-4 py-8 border-gray-200 border rounded-xl w-full h-max text-center">
                 <h2 className="text-2xl font-bold text-(--dark-primary) mb-2">
-                  Room Utilization Purpose
+                  Total Users
                 </h2>
-                <Bar
+                <Pie
                   data={{
-                    labels: rooms,
-                    datasets: purposes.map((purpose, index) => ({
-                      label: purpose,
-                      data: rooms.map((room) => {
-                        const record = chartUsageByPurpose.find(
-                          (r) => r.room_name === room && r.purpose === purpose
-                        );
-                        return record ? record.total_usage : 0;
-                      }),
-                      backgroundColor: [
-                        "#F6C501",
-                        "#0070CC",
-                        "#073066",
-                        "#FF6B6B",
-                      ][index % 4],
-                    })),
+                    labels: chartUserCount.map((u) => u.user_type),
+                    datasets: [
+                      {
+                        data: chartUserCount.map((u) => u.total),
+                        backgroundColor: ["#F6C501", "#0070CC", "#073066"],
+                      },
+                    ],
                   }}
                   options={{ animation: { duration: 1000 } }}
                 />
               </div>
+              <div className="bg-white p-4 border-gray-200 border rounded-xl w-full text-center h-full grid place-items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-(--dark-primary) mb-2">
+                    Room Utilization Purpose
+                  </h2>
+                  <Bar
+                    data={{
+                      labels: rooms,
+                      datasets: purposes.map((purpose, index) => ({
+                        label: purpose,
+                        data: rooms.map((room) => {
+                          const record = chartUsageByPurpose.find(
+                            (r) => r.room_name === room && r.purpose === purpose
+                          );
+                          return record ? record.total_usage : 0;
+                        }),
+                        backgroundColor: [
+                          "#F6C501",
+                          "#0070CC",
+                          "#073066",
+                          "#FF6B6B",
+                        ][index % 4],
+                      })),
+                    }}
+                    options={{ animation: { duration: 1000 } }}
+                  />
+                </div>
+              </div>
             </div>
+          </div>
+          <div className="bg-white w-full h-full border-gray-200 rounded-xl p-4">
+            <RoomUsageChart rooms={rooms} />
           </div>
         </div>
       ) : (
