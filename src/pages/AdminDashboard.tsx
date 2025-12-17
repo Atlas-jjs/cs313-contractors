@@ -426,7 +426,7 @@ export const AdminDashboard = () => {
             </div>
           </div>
           <div className="bg-white w-full h-full border-gray-200 rounded-xl p-4">
-            <RoomUsageChart rooms={rooms} />
+            <RoomUsageChart />
           </div>
         </div>
       ) : (

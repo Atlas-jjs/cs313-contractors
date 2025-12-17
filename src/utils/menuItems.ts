@@ -3,9 +3,10 @@ import { GrCheckboxSelected } from "react-icons/gr";
 import { FaRegClock } from "react-icons/fa";
 import { FiUsers } from "react-icons/fi";
 import { MdOutlineSensorDoor } from "react-icons/md";
+import { MdOutlineDashboard } from "react-icons/md";
+import { TbReportSearch } from "react-icons/tb"
 // import { AiOutlineSound } from "react-icons/ai";
 // import { LuMail } from "react-icons/lu";
-import { MdOutlineDashboard } from "react-icons/md";
 
 import type { IconType } from "react-icons/lib";
 
@@ -44,6 +45,11 @@ export const getMenuItems = (type: string): MenuItem[] => {
           label: "Room",
           to: "/room",
           icon: MdOutlineSensorDoor,
+        },
+        {
+          label: "Report",
+          to: "/report",
+          icon: TbReportSearch,
         },
         // {
         //   label: "Announcement",
