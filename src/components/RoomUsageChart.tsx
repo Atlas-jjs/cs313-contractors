@@ -4,38 +4,33 @@ import supabase from "../config/supabaseClient";
 import { Select } from "@mantine/core";
 
 export interface HoursPerRoom {
+  name: string,
   period_start: string;
   room_id: number;
   total_hours_used: number;
 }
 
-interface RoomUsageChartProps {
-  rooms: string[];
-  initialRange?: string;
+export interface RoomUsageChartProps {
+  range?: "Week" | "Month" | "Quarter" | "Year";
+  disableSelect?: boolean;
 }
 
-export const RoomUsageChart = ({ rooms }: RoomUsageChartProps) => {
-  const [roomRange, setRoomRange] = useState<
-    "Week" | "Month" | "Quarter" | "Year"
-  >("Week");
+const HOURS_PER_DAY = 10; // 7AM–5PM
+const DAYS_PER_RANGE: Record<"Week" | "Month" | "Quarter" | "Year", number> = {
+  Week: 5,
+  Month: 22,
+  Quarter: 66,
+  Year: 220,
+};
+
+export const RoomUsageChart = ({ range, disableSelect }: RoomUsageChartProps) => {
+  const [roomRange, setRoomRange] = useState(range || "Week");
   const [chartRoomUsage, setChartRoomUsage] = useState<HoursPerRoom[]>([]);
 
-  //   Can accommodate 5 rooms with different colors
   const roomColors = ["#F6C501", "#0070CC", "#073066", "#FF6B6B", "#4CAF50"];
   const parsedNow = new Date().toISOString().split("T")[0];
 
-  const totalHours = chartRoomUsage.reduce(
-    (sum, room) => sum + room.total_hours_used,
-    0
-  );
-
-  const roomPercentages = chartRoomUsage.map((room) => ({
-    room_id: room.room_id,
-    percentage: totalHours
-      ? Math.round((room.total_hours_used / totalHours) * 100)
-      : 0,
-    total_hours: room.total_hours_used,
-  }));
+  const availableHours = HOURS_PER_DAY * DAYS_PER_RANGE[roomRange];
 
   useEffect(() => {
     let isMounted = true;
@@ -51,91 +46,92 @@ export const RoomUsageChart = ({ rooms }: RoomUsageChartProps) => {
       }
     };
 
-    function onUpdate() {
-      fetchRoomHourUsage();
-    }
-
-    window.addEventListener("reservation-updated", onUpdate);
+    window.addEventListener("reservation-updated", fetchRoomHourUsage);
     fetchRoomHourUsage();
 
     return () => {
       isMounted = false;
-      window.removeEventListener("reservation-updated", onUpdate);
+      window.removeEventListener("reservation-updated", fetchRoomHourUsage);
     };
   }, [parsedNow, roomRange]);
 
   return (
-    <div className="bg-white w-full h-full border-gray-200 rounded-xl p-4">
+    <div className="bg-white w-full h-full rounded-xl p-10">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-(--dark-primary) mb-2">
-          Total Room Utilization (Hours)
+          Room Utilization ({roomRange})
         </h2>
         <Select
-          data={["Week", "Month", "Quarter", "Year"]}
+          data={Object.keys(DAYS_PER_RANGE)}
           value={roomRange}
-          onChange={(val: string | null) => {
-            if (
-              val === "Week" ||
-              val === "Month" ||
-              val === "Quarter" ||
-              val === "Year"
-            ) {
-              setRoomRange(val);
-            }
-          }}
+          onChange={(val) => val && setRoomRange(val as keyof typeof DAYS_PER_RANGE)}
+          disabled={disableSelect}
         />
       </div>
       <div>
         <div className="w-full max-h-[600px] flex items-center justify-center">
           <Bar
             data={{
-              labels: rooms,
+              labels: chartRoomUsage.map((room) => room.name),
               datasets: [
                 {
                   label: "Total Hours Used",
-                  data: chartRoomUsage?.map((d) => d.total_hours_used),
-                  backgroundColor: rooms.map(
+                  data: chartRoomUsage.map((d) => d.total_hours_used),
+                  backgroundColor: chartRoomUsage.map(
                     (_, i) => roomColors[i % roomColors.length]
                   ),
                 },
               ],
             }}
             options={{
-              animation: { duration: 1000 },
+              responsive: true,
               plugins: {
-                legend: { display: true, position: "top" },
+                legend: { position: "top" },
                 title: {
                   display: true,
                   text: `Room Usage on ${parsedNow}`,
                 },
               },
-              responsive: true,
               scales: {
                 y: {
                   beginAtZero: true,
                   title: { display: true, text: "Hours Used" },
                 },
-                x: { title: { display: true, text: "Room" } },
               },
             }}
           />
         </div>
         <div
-          className="grid lg:gap-8 gap-4"
+          className="grid lg:gap-8 gap-4 mt-6"
           style={{
-            gridTemplateColumns: `repeat(${roomPercentages.length}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${chartRoomUsage.length}, minmax(0, 1fr))`,
           }}
         >
-          {roomPercentages.map((room, index) => (
-            <div
-              key={room.room_id}
-              className="bg-white p-4 rounded-xl shadow flex flex-col items-center"
-            >
-              <h3 className="text-lg font-bold">{rooms[index]}</h3>
-              <p className="text-2xl font-semibold">{room.percentage}%</p>
-              <span className="text-gray-500">{room.total_hours} hours</span>
-            </div>
-          ))}
+          {chartRoomUsage.map((room) => {
+            const utilization = Math.round((room.total_hours_used / availableHours) * 100);
+            return (
+              <div
+                key={room.room_id}
+                className="bg-white p-4 rounded-xl shadow flex flex-col items-center"
+              >
+                <h3 className="text-lg font-bold">{room.name}</h3>
+                <p
+                  className={`text-2xl font-semibold ${
+                    utilization >= 70
+                      ? "text-[#7CFC00]"
+                      : utilization >= 40
+                        ? "text-[#ffcc00]"
+                        : "text-[#cc3300]"
+                  }`}
+                >
+                  {utilization}%
+                </p>
+                <span className="text-[#6a7282]">
+                {room.total_hours_used.toFixed(1)} / {availableHours} hrs
+              </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

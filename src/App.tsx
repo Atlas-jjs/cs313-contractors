@@ -47,6 +47,7 @@ import { ErrorComponent } from "./pages/ErrorComponent";
 import { MantineProvider } from "@mantine/core";
 
 import {} from "./utils/realtime";
+import {Report} from "./pages/report";
 
 function App() {
   return (
@@ -157,6 +158,17 @@ function App() {
                     <Route path="show/:id" element={<ReservationShow />} />
                     <Route path="edit/:id" element={<ReservationEdit />} />
                   </Route>
+                  <Route path="/report">
+                    <Route
+                      index
+                      element={
+                        <RoleGuard allowed={["Admin"]}>
+                          <Report />
+                        </RoleGuard>
+                      }
+                    ></Route>
+                  </Route>
+
                   {/* Room */}
                   <Route path="/room">
                     <Route
