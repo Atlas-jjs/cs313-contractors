@@ -1,21 +1,35 @@
-FROM node:25-alpine AS builder
+# ---------- Build stage ----------
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-COPY package.json .
+# Copy dependency files first (better caching)
+COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
+# Copy the rest of the project
 COPY . .
-COPY .env.local .env.local
 
-RUN npm run build 
+# Build the Vite app
+RUN npm run build
 
+
+# ---------- Production stage ----------
 FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
 
-COPY --from=builder /app/dist .
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
 
+# Copy custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy built files from the build stage
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose HTTP port
 EXPOSE 80
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
